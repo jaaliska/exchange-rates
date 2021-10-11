@@ -5,5 +5,5 @@ import java.util.*
 data class ExchangeRates(
     val date: Date,
     val baseCurrency: CurrencyDetails,
-    val rates: Map<String, CurrencyExchangeRate>
+    val rates: List<CurrencyExchangeRate>
 )

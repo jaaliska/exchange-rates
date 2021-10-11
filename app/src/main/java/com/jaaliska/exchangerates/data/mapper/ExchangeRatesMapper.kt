@@ -19,7 +19,7 @@ class ExchangeRatesMapper {
             ),
             rates = rates.rates
                 .filter { entry -> entry.key != rates.baseCurrency }
-                .mapValues { entry ->
+                .map { entry ->
                     CurrencyExchangeRate(
                         currencyName = supportedCurrencies[entry.key]?.currencyName ?: "",
                         currencyCode = entry.key,
