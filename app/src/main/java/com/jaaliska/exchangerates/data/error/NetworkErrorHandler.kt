@@ -4,6 +4,7 @@ import com.jaaliska.exchangerates.domain.model.ResultWrapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import timber.log.Timber
 import java.io.IOException
 
 class NetworkErrorHandler {
@@ -16,6 +17,7 @@ class NetworkErrorHandler {
             try {
                 ResultWrapper.Success(apiCall.invoke())
             } catch (throwable: Throwable) {
+                Timber.e(throwable)
                 when (throwable) {
                     is IOException -> ResultWrapper.NetworkError
                     is HttpException -> {

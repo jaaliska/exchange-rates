@@ -1,11 +1,14 @@
 package com.jaaliska.exchangerates.app.di
 
+import android.util.Log
 import com.google.gson.GsonBuilder
 import com.jaaliska.exchangerates.BuildConfig
 import okhttp3.*
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.module.Module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 
@@ -26,6 +29,7 @@ private fun provideOkHttpClient(): OkHttpClient {
         writeTimeout(TIMEOUT, TimeUnit.SECONDS)
         retryOnConnectionFailure(true)
         addInterceptor(CustomInterceptor())
+        addInterceptor(provideLoggingInterceptor())
         build()
     }
 }
@@ -54,4 +58,16 @@ private fun provideRetrofit(
         .client(client)
         .addConverterFactory(gsonFactory)
         .build()
+}
+
+private fun provideLoggingInterceptor(): Interceptor {
+    val logger = object : HttpLoggingInterceptor.Logger {
+        override fun log(message: String) {
+            Timber.tag("OkHttp")
+            Timber.d(message)
+        }
+    }
+    return HttpLoggingInterceptor(logger).apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
 }

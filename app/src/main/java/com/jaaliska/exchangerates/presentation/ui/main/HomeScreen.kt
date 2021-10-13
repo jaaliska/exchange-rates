@@ -4,17 +4,20 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.MoneyValueFilter
+import com.jaaliska.exchangerates.presentation.utils.observe
 import kotlinx.android.synthetic.main.fragment_screen_home.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class HomeScreen : Fragment(R.layout.fragment_screen_home) {
 
@@ -26,23 +29,45 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     }
 
     private fun setupUI() {
-        lifecycleScope.launch {
-            viewModel.baseCurrencyDetails.collect {
-                if (it != null) {
-                    currencyCode.text = it.currencyCode
-                    currencyName.text = it.currencyName
-                }
+        viewModel.baseCurrencyDetails.observe(viewLifecycleOwner) {
+            if (it != null) {
+                currencyCode.text = it.currencyCode
+                currencyName.text = it.currencyName
             }
         }
-        lifecycleScope.launch {
-            viewModel.baseCurrencyAmount.collect {
-                val currentDoubleValue = currencyAmount.text.toString().toDoubleOrNull()
-                if (currentDoubleValue != it) {
-                    val nf: NumberFormat = NumberFormat.getInstance()
-                    nf.maximumFractionDigits = 2
-                    nf.isGroupingUsed = false
-                    currencyAmount.setText(nf.format(it))
-                }
+
+        viewModel.updateDate.observe(viewLifecycleOwner) {
+            if (it != null) {
+                updateData.text = getString(
+                    R.string.the_last_update_was_at,
+                    SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(it)
+                )
+            }
+        }
+        setupEditTextProcessing()
+        setupRecyclerView()
+
+        swipeRefresh.setOnRefreshListener {
+            viewModel.onSwipeToRefresh()
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) {
+            swipeRefresh.isRefreshing = it
+        }
+
+        viewModel.errors.observe(viewLifecycleOwner) {
+            Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun setupEditTextProcessing() {
+        viewModel.baseCurrencyAmount.observe(viewLifecycleOwner) {
+            val currentDoubleValue = currencyAmount.text.toString().toDoubleOrNull()
+            if (currentDoubleValue != it) {
+                val nf: NumberFormat = NumberFormat.getInstance()
+                nf.maximumFractionDigits = 2
+                nf.isGroupingUsed = false
+                currencyAmount.setText(nf.format(it))
             }
         }
 
@@ -55,24 +80,22 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
             override fun afterTextChanged(s: Editable?) {
                 val doubleValue = s.toString().toDoubleOrNull()
                 if (doubleValue != null && viewModel.baseCurrencyAmount.value != doubleValue) {
-                    lifecycleScope.launch {
-                        viewModel.baseCurrencyAmount.emit(doubleValue)
-                    }
+                    viewModel.baseCurrencyAmount.value = doubleValue
                 }
             }
         })
+    }
 
-        //RecyclerView
+    private fun setupRecyclerView() {
         ratesContainer.layoutManager = LinearLayoutManager(context)
-        lifecycleScope.launch {
-            viewModel.exchangeRates.collect {
-                ratesContainer.adapter = MainAdapter(
-                    rates = it,
-                    baseCurrencyAmount = viewModel.baseCurrencyAmount,
-                    coroutineScope = lifecycleScope,
-                    onItemClick = viewModel::onCurrencySelection
-                )
-            }
+
+        viewModel.exchangeRates.observe(viewLifecycleOwner) {
+            ratesContainer.adapter = MainAdapter(
+                rates = it,
+                baseCurrencyAmount = viewModel.baseCurrencyAmount,
+                coroutineScope = lifecycleScope,
+                onItemClick = viewModel::onCurrencySelection
+            )
         }
 
         ratesContainer.addItemDecoration(
@@ -81,5 +104,9 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
                 (ratesContainer.layoutManager as LinearLayoutManager).orientation
             )
         )
+    }
+
+    companion object {
+        const val DATE_FORMAT = "dd-MM-yyyy HH:mm:ss"
     }
 }

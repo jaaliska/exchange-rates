@@ -5,5 +5,11 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 internal val viewModels = module {
-    viewModel { HomeViewModel(get()) }
+    viewModel {
+        HomeViewModel(
+            currencyRepository = get(),
+            prefsRepository = get(),
+            alarmService = get()
+        )
+    }
 }

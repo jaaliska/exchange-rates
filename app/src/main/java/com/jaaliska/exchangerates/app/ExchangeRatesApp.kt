@@ -6,6 +6,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.core.logger.Level
+import timber.log.Timber
 
 class ExchangeRatesApp : Application() {
 
@@ -16,5 +17,6 @@ class ExchangeRatesApp : Application() {
             androidContext(this@ExchangeRatesApp)
             modules(app)
         }
+        Timber.plant(Timber.DebugTree())
     }
 }
