@@ -35,7 +35,7 @@ class HomeViewModel(
             alarmService.exchangeRatesCacheUpdated.collect {
                 val currentBaseCurrency = baseCurrencyDetails.value
                 if (currentBaseCurrency != null &&
-                    currentBaseCurrency.currencyCode == it.baseCurrency.currencyCode
+                    currentBaseCurrency.code == it.baseCurrency.code
                 ) {
                     applyExchangeRatesToScreen(it)
                 }
@@ -50,7 +50,7 @@ class HomeViewModel(
     }
 
     fun onSwipeToRefresh() {
-        val currencyCode = baseCurrencyDetails.value?.currencyCode ?: prefsRepository.getBaseCurrencyCode()
+        val currencyCode = baseCurrencyDetails.value?.code ?: prefsRepository.getBaseCurrencyCode()
         updateExchangeRates(currencyCode, true)
     }
 
@@ -72,7 +72,7 @@ class HomeViewModel(
                 }
                 is ResultWrapper.Success<ExchangeRates> -> {
                     applyExchangeRatesToScreen(exchangeRatesResult.value)
-                    prefsRepository.setBaseCurrencyCode(exchangeRatesResult.value.baseCurrency.currencyCode)
+                    prefsRepository.setBaseCurrencyCode(exchangeRatesResult.value.baseCurrency.code)
                     if (onFinished != null) {
                         onFinished()
                     }

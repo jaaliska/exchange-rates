@@ -31,8 +31,8 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     private fun setupUI() {
         viewModel.baseCurrencyDetails.observe(viewLifecycleOwner) {
             if (it != null) {
-                currencyCode.text = it.currencyCode
-                currencyName.text = it.currencyName
+                currencyCode.text = it.code
+                currencyName.text = it.name
             }
         }
 

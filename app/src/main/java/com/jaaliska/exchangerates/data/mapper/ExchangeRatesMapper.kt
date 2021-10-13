@@ -14,14 +14,14 @@ class ExchangeRatesMapper {
         return ExchangeRates(
             date = rates.date,
             baseCurrency = CurrencyDetails(
-                currencyName = supportedCurrencies[rates.baseCurrency]?.currencyName ?: "",
-                currencyCode = rates.baseCurrency
+                name = supportedCurrencies[rates.baseCurrency]?.name ?: "",
+                code = rates.baseCurrency
             ),
             rates = rates.rates
                 .filter { entry -> entry.key != rates.baseCurrency }
                 .map { entry ->
                     CurrencyExchangeRate(
-                        currencyName = supportedCurrencies[entry.key]?.currencyName ?: "",
+                        currencyName = supportedCurrencies[entry.key]?.name ?: "",
                         currencyCode = entry.key,
                         exchangeRate = entry.value
                     )
