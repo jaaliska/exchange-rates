@@ -6,6 +6,6 @@ import java.util.*
 data class RatesDetailsDto(
     val date: Date,
     @SerializedName("base")
-    val baseCurrency: String,
+    val baseCurrencyCode: String,
     val rates: Map<String, Double>
 )

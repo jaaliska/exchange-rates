@@ -6,7 +6,7 @@ import com.jaaliska.exchangerates.domain.repository.CurrencyApiRepository
 import com.jaaliska.exchangerates.domain.repository.CurrencyDbRepository
 import com.jaaliska.exchangerates.domain.repository.CurrencyRepository
 
-class CurrencyRepositoryImpl(
+class CurrencyRepositoryImpl( //USeCase
     private val apiRepository: CurrencyApiRepository,
     private val dbRepository: CurrencyDbRepository
 ) : CurrencyRepository {
