@@ -3,7 +3,7 @@ package com.jaaliska.exchangerates.data.repository
 import android.content.SharedPreferences
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 
-class PreferencesRepositoryImpl(private val sharedPreferences: SharedPreferences):
+class SharedPreferencesRepository(private val sharedPreferences: SharedPreferences):
     PreferencesRepository
 {
     override fun getBaseCurrencyCode(): String {

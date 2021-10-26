@@ -4,6 +4,6 @@ import java.util.*
 
 data class ExchangeRates(
     val date: Date,
-    val baseCurrency: CurrencyDetails,
-    val rates: List<CurrencyExchangeRate>
+    val baseCurrencyCode: String,
+    val rates: List<Rate>
 )

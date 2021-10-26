@@ -5,17 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.domain.model.CurrencyDetails
+import com.jaaliska.exchangerates.domain.model.Currency
 
 class CurrencyChoiceAdapter(
-    private val supportedCurrencies: List<CurrencyDetails>,
+    private val supportedCurrencies: List<Currency>,
     private val onItemClick: (currencyCode: String) -> Unit
 ) : RecyclerView.Adapter<CurrencyChoiceAdapter.CheckableViewHolder>() {
 
     class CheckableViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(
-            supportedCurrencies: CurrencyDetails,
+            supportedCurrencies: Currency,
             onItemClick: (currencyCode: String) -> Unit
         ) {
             itemView.apply {

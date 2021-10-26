@@ -1,8 +1,7 @@
 package com.jaaliska.exchangerates.domain.repository
 
-import com.jaaliska.exchangerates.domain.model.ExchangeRates
-import com.jaaliska.exchangerates.domain.model.ResultWrapper
+import com.jaaliska.exchangerates.domain.model.Currency
 
-interface CurrencyRepository {
-    suspend fun getExchangeRates(baseCurrencyCode: String, forceUpdate: Boolean): ResultWrapper<ExchangeRates>
+interface CurrencyRepository: ReadonlyCurrencyRepository {
+    suspend fun saveSupportedCurrencies(currencies: List<Currency>)
 }

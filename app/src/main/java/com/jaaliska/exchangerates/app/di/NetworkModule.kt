@@ -1,6 +1,5 @@
 package com.jaaliska.exchangerates.app.di
 
-import android.util.Log
 import com.google.gson.GsonBuilder
 import com.jaaliska.exchangerates.BuildConfig
 import okhttp3.*

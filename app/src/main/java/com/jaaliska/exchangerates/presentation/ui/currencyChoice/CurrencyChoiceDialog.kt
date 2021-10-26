@@ -6,14 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.domain.model.CurrencyDetails
+import com.jaaliska.exchangerates.domain.model.Currency
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class CurrencyChoiceDialog(
 
 ) : DialogFragment() {
 
-    var supportedCurrencies: MutableStateFlow<CurrencyDetails>? = null
+    var supportedCurrencies: MutableStateFlow<Currency>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,7 +33,7 @@ class CurrencyChoiceDialog(
     }
 
     companion object {
-        fun newInstance(date: MutableStateFlow<CurrencyDetails>): CurrencyChoiceDialog {
+        fun newInstance(date: MutableStateFlow<Currency>): CurrencyChoiceDialog {
             return CurrencyChoiceDialog()
                 .apply {
                     supportedCurrencies = date

@@ -3,8 +3,8 @@ package com.jaaliska.exchangerates.presentation.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.domain.model.CurrencyDetails
-import com.jaaliska.exchangerates.domain.model.CurrencyExchangeRate
+import com.jaaliska.exchangerates.domain.model.Currency
+import com.jaaliska.exchangerates.domain.model.Rate
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.model.ResultWrapper
 import com.jaaliska.exchangerates.domain.repository.CurrencyRepository
@@ -22,9 +22,9 @@ class HomeViewModel(
     private val alarmService: AlarmService
 ) : ViewModel() {
 
-    val exchangeRates = MutableStateFlow<List<CurrencyExchangeRate>>(listOf())
+    val exchangeRates = MutableStateFlow<List<Rate>>(listOf())
     val baseCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)
-    val baseCurrencyDetails = MutableStateFlow<CurrencyDetails?>(null)
+    val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
     val updateDate = MutableStateFlow<Date?>(null)
     val isLoading = MutableStateFlow<Boolean>(false)
     val errors = MutableSharedFlow<Int>(0)
@@ -35,7 +35,7 @@ class HomeViewModel(
             alarmService.exchangeRatesCacheUpdated.collect {
                 val currentBaseCurrency = baseCurrencyDetails.value
                 if (currentBaseCurrency != null &&
-                    currentBaseCurrency.code == it.baseCurrency.code
+                    currentBaseCurrency.code == it.baseCurrencyCode
                 ) {
                     applyExchangeRatesToScreen(it)
                 }
@@ -85,7 +85,7 @@ class HomeViewModel(
 
     private fun applyExchangeRatesToScreen(value: ExchangeRates) {
         exchangeRates.value = value.rates
-        baseCurrencyDetails.value = value.baseCurrency
+        baseCurrencyDetails.value = value.baseCurrencyCode
         updateDate.value = value.date
     }
 
