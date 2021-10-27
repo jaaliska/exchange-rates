@@ -3,12 +3,12 @@ package com.jaaliska.exchangerates.app.persistence
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.jaaliska.exchangerates.data.dao.CurrencyDao
-import com.jaaliska.exchangerates.data.dao.RateDao
-import com.jaaliska.exchangerates.data.dao.ExchangeRateBaseCurrencyDao
-import com.jaaliska.exchangerates.data.model.database.RoomCurrency
-import com.jaaliska.exchangerates.data.model.database.RoomExchangeRates
-import com.jaaliska.exchangerates.data.model.database.RoomExchangeRateBaseCurrency
+import com.jaaliska.exchangerates.data.currency.dao.CurrencyDao
+import com.jaaliska.exchangerates.data.rates.dao.RateDao
+import com.jaaliska.exchangerates.data.rates.dao.ExchangeRateBaseCurrencyDao
+import com.jaaliska.exchangerates.data.currency.model.db.RoomCurrency
+import com.jaaliska.exchangerates.data.rates.model.db.RoomExchangeRates
+import com.jaaliska.exchangerates.data.rates.model.db.RoomExchangeRateBaseCurrency
 
 @Database(
     entities = [RoomCurrency::class, RoomExchangeRates::class, RoomExchangeRateBaseCurrency::class],

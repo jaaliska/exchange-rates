@@ -3,13 +3,15 @@ package com.jaaliska.exchangerates.presentation.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.domain.GenericError
+import com.jaaliska.exchangerates.domain.NetworkError
 import com.jaaliska.exchangerates.domain.model.Currency
-import com.jaaliska.exchangerates.domain.model.Rate
-import com.jaaliska.exchangerates.domain.model.ExchangeRates
-import com.jaaliska.exchangerates.domain.model.ResultWrapper
-import com.jaaliska.exchangerates.domain.repository.CurrencyRepository
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
-import com.jaaliska.exchangerates.presentation.service.AlarmService
+import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
+import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
+import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
+import com.jaaliska.exchangerates.presentation.model.NamedRate
+import com.jaaliska.exchangerates.presentation.utils.doOnError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -17,12 +19,12 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class HomeViewModel(
-    private val currencyRepository: CurrencyRepository,
-    private val prefsRepository: PreferencesRepository,
-    private val alarmService: AlarmService
+    private val getNamedRatesUseCase: GetNamedRatesUseCase,
+    private val refreshRatesUseCase: RefreshRatesUseCase,
+    private val prefsRepository: PreferencesRepository
 ) : ViewModel() {
 
-    val exchangeRates = MutableStateFlow<List<Rate>>(listOf())
+    val exchangeRates = MutableStateFlow<List<NamedRate>>(listOf())
     val baseCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)
     val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
     val updateDate = MutableStateFlow<Date?>(null)
@@ -30,62 +32,58 @@ class HomeViewModel(
     val errors = MutableSharedFlow<Int>(0)
 
     init {
-        updateExchangeRates(prefsRepository.getBaseCurrencyCode(), false)
-        viewModelScope.launch {
-            alarmService.exchangeRatesCacheUpdated.collect {
-                val currentBaseCurrency = baseCurrencyDetails.value
-                if (currentBaseCurrency != null &&
-                    currentBaseCurrency.code == it.baseCurrencyCode
-                ) {
-                    applyExchangeRatesToScreen(it)
-                }
-            }
-        }
+        updateExchangeRates(prefsRepository.getBaseCurrencyCode())
     }
 
     fun onCurrencySelection(currencyCode: String, amount: Double) {
-        updateExchangeRates(currencyCode, false) {
+        updateExchangeRates(currencyCode) {
             baseCurrencyAmount.value = amount
         }
     }
 
     fun onSwipeToRefresh() {
-        val currencyCode = baseCurrencyDetails.value?.code ?: prefsRepository.getBaseCurrencyCode()
-        updateExchangeRates(currencyCode, true)
+        viewModelScope.launch {
+            refreshRatesUseCase()
+        }
     }
 
     private fun updateExchangeRates(
         baseCurrencyCode: String,
-        forceUpdate: Boolean,
         onFinished: (() -> Unit)? = null
     ) {
         viewModelScope.launch {
             isLoading.emit(true)
-            val exchangeRatesResult =
-                currencyRepository.getExchangeRates(baseCurrencyCode, forceUpdate)
-            when (exchangeRatesResult) {
-                is ResultWrapper.NetworkError -> {
-                    errors.emit(R.string.network_error)
+            getNamedRatesUseCase(baseCurrencyCode)
+                .doOnError {
+                    val messageRes: Int = when(it) {
+                        is NetworkError -> R.string.network_error
+                        is GenericError -> R.string.something_went_wrong
+                        else -> R.string.something_went_wrong
+                    }
+                    launch {
+                        errors.emit(messageRes)
+                    }
                 }
-                is ResultWrapper.GenericError -> {
-                    errors.emit(R.string.something_went_wrong)
-                }
-                is ResultWrapper.Success<ExchangeRates> -> {
-                    applyExchangeRatesToScreen(exchangeRatesResult.value)
-                    prefsRepository.setBaseCurrencyCode(exchangeRatesResult.value.baseCurrency.code)
+                .collect {
+                    applyExchangeRatesToScreen(it)
+                    prefsRepository.setBaseCurrencyCode(it.baseCurrency.code)
                     if (onFinished != null) {
                         onFinished()
                     }
-                    alarmService.startAlarm()
+                    isLoading.emit(false)
                 }
-            }
-            isLoading.emit(false)
         }
     }
 
-    private fun applyExchangeRatesToScreen(value: ExchangeRates) {
-        exchangeRates.value = value.rates
-        baseCurrencyDetails.value = value.baseCurrencyCode
+    private fun applyExchangeRatesToScreen(value: NamedExchangeRates) {
+        exchangeRates.value = value.rates.map {
+            NamedRate(
+                currencyCode = it.first.code,
+                currencyName = it.first.name,
+                exchangeRate = it.second
+            )
+        }
+        baseCurrencyDetails.value = value.baseCurrency
         updateDate.value = value.date
     }
 

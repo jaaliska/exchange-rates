@@ -7,9 +7,9 @@ import org.koin.dsl.module
 internal val viewModels = module {
     viewModel {
         HomeViewModel(
-            currencyRepository = get(),
-            prefsRepository = get(),
-            alarmService = get()
+            getNamedRatesUseCase = get(),
+            refreshRatesUseCase = get(),
+            prefsRepository = get()
         )
     }
 }
