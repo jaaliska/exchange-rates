@@ -22,6 +22,14 @@ import java.util.*
 class HomeScreen : Fragment(R.layout.fragment_screen_home) {
 
     private val viewModel by viewModel<HomeViewModel>()
+    private val mainAdapter by lazy {
+        MainAdapter(
+            rates = listOf(),
+            baseCurrencyAmount = viewModel.baseCurrencyAmount,
+            coroutineScope = lifecycleScope,
+            onItemClick = viewModel::onCurrencySelection
+        )
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,7 +44,9 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
             }
         }
 
-        viewModel.updateDate.observe(viewLifecycleOwner) {
+        ratesContainer.adapter = mainAdapter
+
+            viewModel.updateDate.observe(viewLifecycleOwner) {
             if (it != null) {
                 updateData.text = getString(
                     R.string.the_last_update_was_at,
@@ -57,6 +67,9 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
 
         viewModel.errors.observe(viewLifecycleOwner) {
             Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
+        }
+        viewModel.currencyChoiceDialog.observe(viewLifecycleOwner) {
+            it.show(parentFragmentManager, CURRENCY_CHOICE_DIALOG)
         }
     }
 
@@ -90,12 +103,8 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
         ratesContainer.layoutManager = LinearLayoutManager(context)
 
         viewModel.exchangeRates.observe(viewLifecycleOwner) {
-            ratesContainer.adapter = MainAdapter(
-                rates = it,
-                baseCurrencyAmount = viewModel.baseCurrencyAmount,
-                coroutineScope = lifecycleScope,
-                onItemClick = viewModel::onCurrencySelection
-            )
+            mainAdapter.rates = it
+            mainAdapter.notifyDataSetChanged()
         }
 
         ratesContainer.addItemDecoration(
@@ -108,5 +117,6 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
 
     companion object {
         const val DATE_FORMAT = "dd-MM-yyyy HH:mm:ss"
+        const val CURRENCY_CHOICE_DIALOG = "CurrencyChoiceDialog"
     }
 }

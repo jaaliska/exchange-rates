@@ -18,7 +18,7 @@ class AlarmService(
         calendar.timeInMillis = System.currentTimeMillis() + DAY_IN_MILLIS
         val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
         alarmManager!!.setExact(AlarmManager.RTC, calendar.timeInMillis, createPendingIntent())
-        Log.d("AlarmService", "startAlarm")
+        Log.d("AlarmService", "startAlarm ${calendar.time}")
     }
 
     private fun cancelAlarm() {

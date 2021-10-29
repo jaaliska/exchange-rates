@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 typealias ItemClickCallback = (currencyCode: String, resultAmount: Double) -> Unit
 
 class MainAdapter(
-    private val rates: List<NamedRate>,
+    var rates: List<NamedRate>,
     private val baseCurrencyAmount: StateFlow<Double>,
     private val coroutineScope: CoroutineScope,
     private val onItemClick: ItemClickCallback

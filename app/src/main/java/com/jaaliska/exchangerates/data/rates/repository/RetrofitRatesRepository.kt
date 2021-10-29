@@ -7,6 +7,7 @@ import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.model.Rate
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import java.lang.StringBuilder
 
 class RetrofitRatesRepository(
     private val api: RatesAPI,
@@ -20,7 +21,8 @@ class RetrofitRatesRepository(
     ): ExchangeRates {
         val latestRates: ResponseDto.RatesDetailsDto
         try {
-            latestRates = api.getLatestRates(baseCurrencyCode, currencyCodes)
+            latestRates =
+                api.getLatestRates(baseCurrencyCode, currencyCodes.mapListValuesToString()).response
         } catch (e: Exception) {
             throw networkErrorHandler.mapError(e)
         }
@@ -34,6 +36,10 @@ class RetrofitRatesRepository(
                 )
             }
         )
+    }
+
+    private fun List<String>.mapListValuesToString(): String {
+        return this.joinToString(",")
     }
 }
 

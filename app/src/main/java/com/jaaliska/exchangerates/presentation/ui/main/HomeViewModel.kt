@@ -7,10 +7,12 @@ import com.jaaliska.exchangerates.domain.GenericError
 import com.jaaliska.exchangerates.domain.NetworkError
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
+import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
 import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
 import com.jaaliska.exchangerates.presentation.model.NamedRate
+import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
 import com.jaaliska.exchangerates.presentation.utils.doOnError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +23,8 @@ import java.util.*
 class HomeViewModel(
     private val getNamedRatesUseCase: GetNamedRatesUseCase,
     private val refreshRatesUseCase: RefreshRatesUseCase,
-    private val prefsRepository: PreferencesRepository
+    private val prefsRepository: PreferencesRepository,
+    private val favoriteCurrenciesUseCase: FavoriteCurrenciesUseCase,
 ) : ViewModel() {
 
     val exchangeRates = MutableStateFlow<List<NamedRate>>(listOf())
@@ -30,9 +33,24 @@ class HomeViewModel(
     val updateDate = MutableStateFlow<Date?>(null)
     val isLoading = MutableStateFlow<Boolean>(false)
     val errors = MutableSharedFlow<Int>(0)
+    val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
 
     init {
-        updateExchangeRates(prefsRepository.getBaseCurrencyCode())
+        viewModelScope.launch {
+            val favorites = favoriteCurrenciesUseCase.get()
+            if (favorites.isNotEmpty()) {
+                updateExchangeRates(prefsRepository.getBaseCurrencyCode())
+            } else {
+                showCurrencyChoiceDialog()
+            }
+        }
+    }
+
+    private fun showCurrencyChoiceDialog() {
+        viewModelScope.launch {
+            val dialog = CurrencyChoiceDialog()
+            currencyChoiceDialog.emit(dialog)
+        }
     }
 
     fun onCurrencySelection(currencyCode: String, amount: Double) {
@@ -43,7 +61,9 @@ class HomeViewModel(
 
     fun onSwipeToRefresh() {
         viewModelScope.launch {
+            isLoading.emit(true)
             refreshRatesUseCase()
+            isLoading.emit(false)
         }
     }
 
@@ -55,7 +75,7 @@ class HomeViewModel(
             isLoading.emit(true)
             getNamedRatesUseCase(baseCurrencyCode)
                 .doOnError {
-                    val messageRes: Int = when(it) {
+                    val messageRes: Int = when (it) {
                         is NetworkError -> R.string.network_error
                         is GenericError -> R.string.something_went_wrong
                         else -> R.string.something_went_wrong

@@ -3,4 +3,13 @@
     <string name="the_last_update_was_at">The last update was at %s</string>
     <string name="network_error">Network error</string>
     <string name="something_went_wrong">Something went wrong</string>
+
+    <!-- CurrencyChoiceDialog -->
+    <string name="choose_your_currencies">Choose your currencies</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- menu -->
+    <string name="change_currencies">Change currencies</string>
+
 </resources>

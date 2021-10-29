@@ -5,15 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.domain.model.Currency
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.jaaliska.exchangerates.presentation.utils.observe
+import kotlinx.android.synthetic.main.dialog_currency_choice.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CurrencyChoiceDialog(
+class CurrencyChoiceDialog : DialogFragment() {
 
-) : DialogFragment() {
+    private val viewModel by viewModel<CurrencyChoiceDialogViewModel>()
 
-    var supportedCurrencies: MutableStateFlow<Currency>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,15 +30,19 @@ class CurrencyChoiceDialog(
     }
 
     private fun setupView() {
-
-    }
-
-    companion object {
-        fun newInstance(date: MutableStateFlow<Currency>): CurrencyChoiceDialog {
-            return CurrencyChoiceDialog()
-                .apply {
-                    supportedCurrencies = date
+        currencyContainer.layoutManager = LinearLayoutManager(context)
+        viewModel.currencies.observe(viewLifecycleOwner) { supportedCurrencies ->
+            currencyContainer.adapter =
+                CurrencyChoiceAdapter(supportedCurrencies) { code, isChecked ->
+                    viewModel.onItemClick(code, isChecked)
                 }
+        }
+        buttonOk.setOnClickListener {
+            viewModel.onOkClick()
+            dismiss()
+        }
+        buttonCancel.setOnClickListener {
+            dismiss()
         }
     }
 }

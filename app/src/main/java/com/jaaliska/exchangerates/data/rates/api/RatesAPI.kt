@@ -10,6 +10,6 @@ interface RatesAPI {
     @GET("latest")
     suspend fun getLatestRates(
         @Query("base") baseCurrency: String,
-        @Body symbols: List<String> = listOf()
-    ): ResponseDto.RatesDetailsDto
+        @Query("symbols") symbols: String
+    ): ResponseDto
 }

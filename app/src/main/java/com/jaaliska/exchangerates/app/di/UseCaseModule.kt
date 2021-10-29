@@ -37,8 +37,8 @@ internal val useCaseModule = module {
         )
     }
 
-    single<SetFavoriteCurrenciesUseCase> {
-        SetFavoriteCurrenciesUseCaseImpl(
+    single<FavoriteCurrenciesUseCase> {
+        FavoriteCurrenciesUseCaseImpl(
             localCurrencyRepository = get(),
             refreshRatesUseCase = get()
         )

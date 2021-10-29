@@ -12,7 +12,7 @@ import com.jaaliska.exchangerates.R
 import android.app.PendingIntent
 
 import android.content.Intent
-import com.jaaliska.exchangerates.MainActivity
+import com.jaaliska.exchangerates.presentation.ui.MainActivity
 
 
 class NotificationHelper(base: Context?) : ContextWrapper(base) {
