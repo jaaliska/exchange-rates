@@ -8,6 +8,7 @@ import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.model.Rate
 import com.jaaliska.exchangerates.domain.RatesNotFoundException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class RoomRatesRepository(private val db: ExchangeRatesDatabase) {
@@ -16,15 +17,21 @@ class RoomRatesRepository(private val db: ExchangeRatesDatabase) {
         baseCurrencyCode: String,
         currencyCodes: List<String>
     ): Flow<ExchangeRates> {
-        val updateDate =
-            db.exchangeRateBaseCurrencyDao().getByCurrencyCode(baseCurrencyCode)?.updateDate
-                ?: throw RatesNotFoundException(baseCurrencyCode)
+        val baseCode = if (baseCurrencyCode == "") {
+            db.currencyDao().readFavoriteCurrencyCodes()[0]
+        } else baseCurrencyCode
 
-        val result = db.exchangesRatesDao().getByBaseCode(baseCurrencyCode, currencyCodes)
+        val comparator = { old: List<RoomExchangeRates>, new: List<RoomExchangeRates> ->
+            old == new
+        }
+
+        val result = db.exchangesRatesDao().getByBaseCode(baseCode, currencyCodes)
+            .distinctUntilChanged(comparator)
         return result.map {
             ExchangeRates(
-                date = updateDate,
-                baseCurrencyCode = baseCurrencyCode,
+                date = db.exchangeRateBaseCurrencyDao().getByCurrencyCode(baseCode)?.updateDate
+                    ?: throw RatesNotFoundException(baseCode),
+                baseCurrencyCode = baseCode,
                 rates = it.map {
                     Rate(
                         currencyCode = it.currencyCode,

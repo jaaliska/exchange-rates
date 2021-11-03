@@ -7,8 +7,7 @@ import java.util.*
 
 @Entity(tableName = "exchange_rate_base_currency")
 data class RoomExchangeRateBaseCurrency(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int? = null,
+    @PrimaryKey
     @ColumnInfo(name = "currency_code")
     val currencyCode: String,
     @ColumnInfo(name = "update_date")

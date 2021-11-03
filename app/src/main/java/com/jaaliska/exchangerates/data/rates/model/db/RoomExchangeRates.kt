@@ -2,13 +2,10 @@ package com.jaaliska.exchangerates.data.rates.model.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "rates")
+@Entity(tableName = "rates", primaryKeys = ["base_code", "code"])
 data class RoomExchangeRates (
-    @PrimaryKey(autoGenerate = true)
-    val id: Int? = null,
     @ColumnInfo(name = "base_code")
     val baseCurrencyCode: String,
     @ColumnInfo(name = "code")

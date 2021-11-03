@@ -1,18 +1,20 @@
 package com.jaaliska.exchangerates.presentation.ui.currencyChoice
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.model.SelectedCurrency
+import com.jaaliska.exchangerates.presentation.utils.SelectedCurrencyDiffUtilCallback
 import kotlinx.android.synthetic.main.currency_choice_item.view.*
 
 class CurrencyChoiceAdapter(
-    private val supportedCurrencies: List<SelectedCurrency>,
     private val onItemClick: (currencyCode: String, isCheck: Boolean) -> Unit
-) : RecyclerView.Adapter<CurrencyChoiceAdapter.CheckableViewHolder>() {
+) : ListAdapter<SelectedCurrency, CurrencyChoiceAdapter.CheckableViewHolder>(
+    SelectedCurrencyDiffUtilCallback()
+) {
 
     class CheckableViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -30,11 +32,6 @@ class CurrencyChoiceAdapter(
                     onItemClick(supportedCurrencies.code, changedValue)
                     supportedCurrencies.isSelected = changedValue
                     checkboxCurrency.isChecked = changedValue
-
-                    Log.d(
-                        "CurrencyChoiceAdapter", supportedCurrencies.code + " " +
-                                supportedCurrencies.name + " " + checkboxCurrency.isChecked
-                    )
                 }
             }
         }
@@ -47,11 +44,11 @@ class CurrencyChoiceAdapter(
         )
 
     override fun getItemCount(): Int {
-        return supportedCurrencies.size
+        return currentList.size
     }
 
     override fun onBindViewHolder(holder: CheckableViewHolder, position: Int) {
-        holder.bind(supportedCurrencies[position], onItemClick)
+        holder.bind(currentList[position], onItemClick)
     }
 
 }

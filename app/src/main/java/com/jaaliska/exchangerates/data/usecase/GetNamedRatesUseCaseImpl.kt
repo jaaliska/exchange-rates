@@ -6,6 +6,7 @@ import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetRatesUseCase
 import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class GetNamedRatesUseCaseImpl (
@@ -26,10 +27,10 @@ class GetNamedRatesUseCaseImpl (
         val rates = getRatesUseCase(baseCurrencyCode, favorites)
         val getCurrency = { code: String -> currencies[code] ?: Currency("", code) }
 
-        return rates.map {
+        return rates.distinctUntilChanged().map {
             NamedExchangeRates(
                 date = it.date,
-                baseCurrency = getCurrency(baseCurrencyCode),
+                baseCurrency = getCurrency(it.baseCurrencyCode),
                 rates = it.rates.map {
                     Pair(
                         getCurrency(it.currencyCode),

@@ -85,8 +85,10 @@ class HomeViewModel(
                     }
                 }
                 .collect {
-                    applyExchangeRatesToScreen(it)
                     prefsRepository.setBaseCurrencyCode(it.baseCurrency.code)
+                        //   if(baseCurrencyCode == "" || baseCurrencyCode == it.baseCurrency.code) {
+                        applyExchangeRatesToScreen(it)
+                   // }
                     if (onFinished != null) {
                         onFinished()
                     }

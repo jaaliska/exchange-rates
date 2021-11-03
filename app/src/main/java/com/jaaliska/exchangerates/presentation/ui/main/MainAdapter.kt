@@ -3,9 +3,11 @@ package com.jaaliska.exchangerates.presentation.ui.main
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.model.NamedRate
+import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
 import kotlinx.android.synthetic.main.exchange_rates_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -16,14 +18,12 @@ import kotlinx.coroutines.launch
 typealias ItemClickCallback = (currencyCode: String, resultAmount: Double) -> Unit
 
 class MainAdapter(
-    var rates: List<NamedRate>,
     private val baseCurrencyAmount: StateFlow<Double>,
     private val coroutineScope: CoroutineScope,
     private val onItemClick: ItemClickCallback
-) : RecyclerView.Adapter<MainAdapter.DataViewHolder>() {
+) : ListAdapter<NamedRate, MainAdapter.DataViewHolder>(RatesDiffUtilCallback()) {
 
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
         private var job: Job? = null
         private var rate: NamedRate? = null
         private var baseCurrencyAmount: StateFlow<Double>? = null
@@ -81,11 +81,11 @@ class MainAdapter(
         )
 
     override fun getItemCount(): Int {
-        return rates.size
+        return currentList.size
     }
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
-        holder.bind(rates[position], baseCurrencyAmount, coroutineScope, onItemClick)
+        holder.bind(currentList[position], baseCurrencyAmount, coroutineScope, onItemClick)
     }
 
 }

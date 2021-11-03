@@ -8,6 +8,7 @@
     <string name="choose_your_currencies">Choose your currencies</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="not_enough_changed_currency">Select at least two currency</string>
 
     <!-- menu -->
     <string name="change_currencies">Change currencies</string>
