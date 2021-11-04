@@ -7,10 +7,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.MoneyValueFilter
+import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
 import com.jaaliska.exchangerates.presentation.utils.observe
 import kotlinx.android.synthetic.main.fragment_screen_home.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -24,7 +26,6 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     private val viewModel by viewModel<HomeViewModel>()
     private val mainAdapter by lazy {
         MainAdapter(
-            rates = listOf(),
             baseCurrencyAmount = viewModel.baseCurrencyAmount,
             coroutineScope = lifecycleScope,
             onItemClick = viewModel::onCurrencySelection
@@ -46,7 +47,7 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
 
         ratesContainer.adapter = mainAdapter
 
-            viewModel.updateDate.observe(viewLifecycleOwner) {
+        viewModel.updateDate.observe(viewLifecycleOwner) {
             if (it != null) {
                 updateData.text = getString(
                     R.string.the_last_update_was_at,
@@ -103,8 +104,7 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
         ratesContainer.layoutManager = LinearLayoutManager(context)
 
         viewModel.exchangeRates.observe(viewLifecycleOwner) {
-            mainAdapter.rates = it
-            mainAdapter.notifyDataSetChanged()
+            mainAdapter.submitList(it)
         }
 
         ratesContainer.addItemDecoration(

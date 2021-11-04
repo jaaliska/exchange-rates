@@ -19,6 +19,6 @@ class SharedPreferencesRepository(private val sharedPreferences: SharedPreferenc
 
     companion object {
         const val BASE_CURRENCY_CODE_KEY = "base_currency"
-        const val DEFAULT_BASE_CURRENCY_CODE = "USD"
+        const val DEFAULT_BASE_CURRENCY_CODE = ""
     }
 }

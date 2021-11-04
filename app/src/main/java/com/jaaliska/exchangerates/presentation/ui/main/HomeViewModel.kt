@@ -14,6 +14,7 @@ import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
 import com.jaaliska.exchangerates.presentation.model.NamedRate
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
 import com.jaaliska.exchangerates.presentation.utils.doOnError
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -34,6 +35,7 @@ class HomeViewModel(
     val isLoading = MutableStateFlow<Boolean>(false)
     val errors = MutableSharedFlow<Int>(0)
     val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
+    private var updateExchangeRatesJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -71,7 +73,8 @@ class HomeViewModel(
         baseCurrencyCode: String,
         onFinished: (() -> Unit)? = null
     ) {
-        viewModelScope.launch {
+        updateExchangeRatesJob?.cancel()
+        updateExchangeRatesJob = viewModelScope.launch {
             isLoading.emit(true)
             getNamedRatesUseCase(baseCurrencyCode)
                 .doOnError {
@@ -85,8 +88,10 @@ class HomeViewModel(
                     }
                 }
                 .collect {
-                    applyExchangeRatesToScreen(it)
                     prefsRepository.setBaseCurrencyCode(it.baseCurrency.code)
+                    //   if(baseCurrencyCode == "" || baseCurrencyCode == it.baseCurrency.code) {
+                    applyExchangeRatesToScreen(it)
+                    // }
                     if (onFinished != null) {
                         onFinished()
                     }
