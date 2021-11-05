@@ -2,9 +2,7 @@ package com.jaaliska.exchangerates.presentation.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.domain.GenericError
-import com.jaaliska.exchangerates.domain.NetworkError
+import com.jaaliska.exchangerates.data.rates.repository.BaseCurrencyCode
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
@@ -13,8 +11,7 @@ import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
 import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
 import com.jaaliska.exchangerates.presentation.model.NamedRate
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
-import com.jaaliska.exchangerates.presentation.utils.doOnError
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -26,6 +23,7 @@ class HomeViewModel(
     private val refreshRatesUseCase: RefreshRatesUseCase,
     private val prefsRepository: PreferencesRepository,
     private val favoriteCurrenciesUseCase: FavoriteCurrenciesUseCase,
+    private val getRatesUpdateDates: Flow<Map<BaseCurrencyCode, Date>>
 ) : ViewModel() {
 
     val exchangeRates = MutableStateFlow<List<NamedRate>>(listOf())
@@ -35,7 +33,6 @@ class HomeViewModel(
     val isLoading = MutableStateFlow<Boolean>(false)
     val errors = MutableSharedFlow<Int>(0)
     val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
-    private var updateExchangeRatesJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -45,6 +42,14 @@ class HomeViewModel(
             } else {
                 showCurrencyChoiceDialog()
             }
+            getRatesUpdateDates
+                .collect {
+                    val baseCurrencyCode = prefsRepository.getBaseCurrencyCode()
+                    val date: Date? = it[baseCurrencyCode]
+                    if (date != null && (updateDate.value == null || date > updateDate.value)) {
+                        updateExchangeRates(baseCurrencyCode)
+                    }
+                }
         }
     }
 
@@ -73,30 +78,16 @@ class HomeViewModel(
         baseCurrencyCode: String,
         onFinished: (() -> Unit)? = null
     ) {
-        updateExchangeRatesJob?.cancel()
-        updateExchangeRatesJob = viewModelScope.launch {
+        viewModelScope.launch {
             isLoading.emit(true)
-            getNamedRatesUseCase(baseCurrencyCode)
-                .doOnError {
-                    val messageRes: Int = when (it) {
-                        is NetworkError -> R.string.network_error
-                        is GenericError -> R.string.something_went_wrong
-                        else -> R.string.something_went_wrong
-                    }
-                    launch {
-                        errors.emit(messageRes)
-                    }
-                }
-                .collect {
-                    prefsRepository.setBaseCurrencyCode(it.baseCurrency.code)
-                    //   if(baseCurrencyCode == "" || baseCurrencyCode == it.baseCurrency.code) {
-                    applyExchangeRatesToScreen(it)
-                    // }
-                    if (onFinished != null) {
-                        onFinished()
-                    }
-                    isLoading.emit(false)
-                }
+            getNamedRatesUseCase(baseCurrencyCode).apply {
+                prefsRepository.setBaseCurrencyCode(this.baseCurrency.code)
+                applyExchangeRatesToScreen(this)
+            }
+            if (onFinished != null) {
+                onFinished()
+            }
+            isLoading.emit(false)
         }
     }
 

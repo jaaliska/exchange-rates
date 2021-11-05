@@ -6,7 +6,6 @@ import com.jaaliska.exchangerates.domain.RatesNotFoundException
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.usecases.GetRatesUseCase
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
-import kotlinx.coroutines.flow.Flow
 
 class GetRatesUseCaseImpl(
     private val localRatesRepository: RoomRatesRepository,
@@ -17,7 +16,7 @@ class GetRatesUseCaseImpl(
     override suspend operator fun invoke(
         baseCurrencyCode: String,
         currencyCodes: List<String>?
-    ): Flow<ExchangeRates> {
+    ): ExchangeRates {
         val favorites = currencyCodes ?: localCurrencyRepository.readFavoriteCurrencies()
         return try {
             localRatesRepository.getRates(baseCurrencyCode, favorites)

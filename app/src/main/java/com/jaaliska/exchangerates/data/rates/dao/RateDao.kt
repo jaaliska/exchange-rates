@@ -17,6 +17,6 @@ interface RateDao {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM rates WHERE base_code = :baseCode AND code IN (:currencyCodes)")
-    fun getByBaseCode(baseCode: String, currencyCodes: List<String>): Flow<List<RoomExchangeRates>>
+    suspend fun getByBaseCode(baseCode: String, currencyCodes: List<String>): List<RoomExchangeRates>
 
 }

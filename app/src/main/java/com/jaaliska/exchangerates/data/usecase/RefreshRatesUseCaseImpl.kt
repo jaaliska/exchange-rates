@@ -17,11 +17,24 @@ class RefreshRatesUseCaseImpl(
     override suspend operator fun invoke() {
         val favorites = localCurrencyRepository.readFavoriteCurrencies()
         localRatesRepository.deleteAllRates()
-        for (baseCurrencyCode in favorites) {
-            val codesToLoad = favorites.filter { it != baseCurrencyCode }
-            val rates = remoteRatesRepository.getRates(baseCurrencyCode, codesToLoad)
-            localRatesRepository.saveRates(rates)
+        coroutineScope {
+            val tasks = mutableListOf<Deferred<Unit>>()
+            for (baseCurrencyCode in favorites) {
+                val codesToLoad = favorites.filter { it != baseCurrencyCode }
+                tasks.add(async {
+                    updateRatesForBaseCurrency(baseCurrencyCode, codesToLoad)
+                })
+            }
+            awaitAll(*tasks.toTypedArray())
         }
         alarmService.startAlarm()
+    }
+
+    private suspend fun updateRatesForBaseCurrency(
+        baseCurrencyCode: String,
+        codesToLoad: List<String>
+    ) {
+        val rates = remoteRatesRepository.getRates(baseCurrencyCode, codesToLoad)
+        localRatesRepository.saveRates(rates)
     }
 }
