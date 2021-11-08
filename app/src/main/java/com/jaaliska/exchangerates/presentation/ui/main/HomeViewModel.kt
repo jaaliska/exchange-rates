@@ -1,6 +1,5 @@
 package com.jaaliska.exchangerates.presentation.ui.main
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.data.rates.repository.BaseCurrencyCode
 import com.jaaliska.exchangerates.domain.model.Currency
@@ -8,13 +7,11 @@ import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
+import com.jaaliska.exchangerates.presentation.error.ErrorHandler
 import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
-import com.jaaliska.exchangerates.presentation.model.NamedRate
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
+import com.jaaliska.exchangerates.presentation.utils.doOnError
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -24,15 +21,16 @@ class HomeViewModel(
     private val prefsRepository: PreferencesRepository,
     private val favoriteCurrenciesUseCase: FavoriteCurrenciesUseCase,
     private val getRatesUpdateDates: Flow<Map<BaseCurrencyCode, Date>>
-) : ViewModel() {
+) : BaseHomeViewModel() {
 
-    val exchangeRates = MutableStateFlow<List<NamedRate>>(listOf())
-    val baseCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)
-    val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
-    val updateDate = MutableStateFlow<Date?>(null)
-    val isLoading = MutableStateFlow<Boolean>(false)
-    val errors = MutableSharedFlow<Int>(0)
-    val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
+    override val exchangeRates = MutableStateFlow<List<NamedRate>>(listOf())
+    override val baseCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)
+    override val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
+    override val updateDate = MutableStateFlow<Date?>(null)
+    override val isLoading = MutableStateFlow<Boolean>(false)
+    override val errors = MutableSharedFlow<Int>(0)
+    override val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
+    private val errorHandler = ErrorHandler()
 
     init {
         viewModelScope.launch {
@@ -43,13 +41,17 @@ class HomeViewModel(
                 showCurrencyChoiceDialog()
             }
             getRatesUpdateDates
-                .collect {
+                .doOnError {
+                    errors.emit(errorHandler.map(it))
+                }
+                .onEach {
                     val baseCurrencyCode = prefsRepository.getBaseCurrencyCode()
                     val date: Date? = it[baseCurrencyCode]
                     if (date != null && (updateDate.value == null || date > updateDate.value)) {
                         updateExchangeRates(baseCurrencyCode)
                     }
                 }
+                .launchIn(viewModelScope)
         }
     }
 
@@ -60,17 +62,22 @@ class HomeViewModel(
         }
     }
 
-    fun onCurrencySelection(currencyCode: String, amount: Double) {
+    override fun onCurrencySelection(currencyCode: String, amount: Double) {
         updateExchangeRates(currencyCode) {
             baseCurrencyAmount.value = amount
         }
     }
 
-    fun onSwipeToRefresh() {
+    override fun onSwipeToRefresh() {
         viewModelScope.launch {
             isLoading.emit(true)
-            refreshRatesUseCase()
-            isLoading.emit(false)
+            try {
+                refreshRatesUseCase()
+            } catch (ex: Exception) {
+                errors.emit(errorHandler.map(ex))
+            } finally {
+                isLoading.emit(false)
+            }
         }
     }
 
@@ -80,14 +87,19 @@ class HomeViewModel(
     ) {
         viewModelScope.launch {
             isLoading.emit(true)
-            getNamedRatesUseCase(baseCurrencyCode).apply {
-                prefsRepository.setBaseCurrencyCode(this.baseCurrency.code)
-                applyExchangeRatesToScreen(this)
+            try {
+                getNamedRatesUseCase(baseCurrencyCode).apply {
+                    prefsRepository.setBaseCurrencyCode(this.baseCurrency.code)
+                    applyExchangeRatesToScreen(this)
+                    if (onFinished != null) {
+                        onFinished()
+                    }
+                }
+            } catch (ex: Exception) {
+                errors.emit(errorHandler.map(ex))
+            } finally {
+                isLoading.emit(false)
             }
-            if (onFinished != null) {
-                onFinished()
-            }
-            isLoading.emit(false)
         }
     }
 

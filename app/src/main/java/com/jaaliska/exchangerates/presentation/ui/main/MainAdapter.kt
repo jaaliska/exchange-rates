@@ -6,33 +6,32 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.model.NamedRate
-import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
+import com.jaaliska.exchangerates.presentation.ui.main.BaseHomeViewModel.NamedRate
 import kotlinx.android.synthetic.main.exchange_rates_item.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 typealias ItemClickCallback = (currencyCode: String, resultAmount: Double) -> Unit
 
 class MainAdapter(
-    private val baseCurrencyAmount: StateFlow<Double>,
+    private val baseCurrencyAmount: Flow<Double>,
     private val coroutineScope: CoroutineScope,
     private val onItemClick: ItemClickCallback
-) : ListAdapter<NamedRate, MainAdapter.DataViewHolder>(RatesDiffUtilCallback()) {
+) : ListAdapter<NamedRate, MainAdapter.DataViewHolder>(NamedRate.diffCallback) {
 
     class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var job: Job? = null
         private var rate: NamedRate? = null
-        private var baseCurrencyAmount: StateFlow<Double>? = null
+        private var baseCurrencyAmount: Flow<Double>? = null
         private var coroutineScope: CoroutineScope? = null
         private var resultAmount: Double? = null
 
         fun bind(
             rate: NamedRate,
-            baseCurrencyAmount: StateFlow<Double>,
+            baseCurrencyAmount: Flow<Double>,
             coroutineScope: CoroutineScope,
             onItemClick: ItemClickCallback
         ) {
@@ -40,8 +39,8 @@ class MainAdapter(
             this.baseCurrencyAmount = baseCurrencyAmount
             this.rate = rate
             itemView.apply {
-                currencyCode.text = rate.currencyCode
-                currencyName.text = rate.currencyName
+                title.text = rate.currencyCode
+                subtitle.text = rate.currencyName
                 this.setOnClickListener {
                     val resAmount = resultAmount
                     resAmount?.let { onItemClick(rate.currencyCode, resAmount) }

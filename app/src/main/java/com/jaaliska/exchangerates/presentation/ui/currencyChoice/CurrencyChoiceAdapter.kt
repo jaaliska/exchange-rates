@@ -6,32 +6,28 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.model.SelectedCurrency
-import com.jaaliska.exchangerates.presentation.utils.SelectedCurrencyDiffUtilCallback
 import kotlinx.android.synthetic.main.currency_choice_item.view.*
 
 class CurrencyChoiceAdapter(
     private val onItemClick: (currencyCode: String, isCheck: Boolean) -> Unit
-) : ListAdapter<SelectedCurrency, CurrencyChoiceAdapter.CheckableViewHolder>(
-    SelectedCurrencyDiffUtilCallback()
+) : ListAdapter<BaseCurrencyChoiceDialogViewModel.SelectableItem, CurrencyChoiceAdapter.CheckableViewHolder>(
+    BaseCurrencyChoiceDialogViewModel.SelectableItem.diffCallback
 ) {
 
     class CheckableViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-
         fun bind(
-            supportedCurrencies: SelectedCurrency,
+            items: BaseCurrencyChoiceDialogViewModel.SelectableItem,
             onItemClick: (currencyCode: String, isCheck: Boolean) -> Unit
         ) {
             itemView.apply {
-                currencyCode.text = supportedCurrencies.code
-                currencyName.text = supportedCurrencies.name
-                checkboxCurrency.isChecked = supportedCurrencies.isSelected
+                title.text = items.title
+                subtitle.text = items.subtitle
+                checkbox.isChecked = items.isSelected
                 this.setOnClickListener {
-                    val changedValue = !checkboxCurrency.isChecked
-                    onItemClick(supportedCurrencies.code, changedValue)
-                    supportedCurrencies.isSelected = changedValue
-                    checkboxCurrency.isChecked = changedValue
+                    val changedValue = !checkbox.isChecked
+                    onItemClick(items.title, changedValue)
+                    items.isSelected = changedValue
+                    checkbox.isChecked = changedValue
                 }
             }
         }

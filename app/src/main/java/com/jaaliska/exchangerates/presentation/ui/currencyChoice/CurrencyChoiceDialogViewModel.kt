@@ -1,11 +1,10 @@
 package com.jaaliska.exchangerates.presentation.ui.currencyChoice
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetSupportedCurrenciesUseCase
-import com.jaaliska.exchangerates.presentation.model.SelectedCurrency
+import com.jaaliska.exchangerates.presentation.error.ErrorHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -13,31 +12,37 @@ import kotlinx.coroutines.launch
 class CurrencyChoiceDialogViewModel(
     getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase,
     private val favoriteCurrenciesUseCase: FavoriteCurrenciesUseCase,
-) : ViewModel() {
+) : BaseCurrencyChoiceDialogViewModel() {
 
-    val currencies = MutableSharedFlow<List<SelectedCurrency>>(0)
-    val errors = MutableSharedFlow<Int>(0)
-    val isLoading = MutableStateFlow<Boolean>(true)
+    override val items = MutableSharedFlow<List<SelectableItem>>(0)
+    override val errors = MutableSharedFlow<Int>(0)
+    override val isLoading = MutableStateFlow<Boolean>(true)
+    private val errorHandler = ErrorHandler()
     private lateinit var startedFavoritesCodes: List<String>
     private lateinit var modifiedFavoritesCodes: MutableList<String>
 
     init {
         viewModelScope.launch {
-            val supportedCurrencies = getSupportedCurrenciesUseCase(true)
-            startedFavoritesCodes = favoriteCurrenciesUseCase.get()
-            modifiedFavoritesCodes = mutableListOf(*startedFavoritesCodes.toTypedArray())
-            currencies.emit(supportedCurrencies.map {
-                SelectedCurrency(
-                    name = it.name,
-                    code = it.code,
-                    isSelected = startedFavoritesCodes.contains(it.code)
-                )
-            })
+            try {
+                val supportedCurrencies = getSupportedCurrenciesUseCase(true)
+                startedFavoritesCodes = favoriteCurrenciesUseCase.get()
+                modifiedFavoritesCodes = mutableListOf(*startedFavoritesCodes.toTypedArray())
+                items.emit(supportedCurrencies.map {
+                    SelectableItem(
+                        subtitle = it.name,
+                        title = it.code,
+                        isSelected = startedFavoritesCodes.contains(it.code)
+                    )
+                })
+            } catch (ex: Exception) {
+                errors.emit(errorHandler.map(ex))
+            }
+
             isLoading.emit(false)
         }
     }
 
-    fun onItemClick(currencyCode: String, isChecked: Boolean) {
+    override fun onItemClick(currencyCode: String, isChecked: Boolean) {
         if (isChecked) {
             modifiedFavoritesCodes.add(currencyCode)
         } else {
@@ -45,14 +50,18 @@ class CurrencyChoiceDialogViewModel(
         }
     }
 
-    fun onOkClick(doOnFinish: () -> Unit) {
+    override fun onOkClick(doOnFinish: () -> Unit) {
         viewModelScope.launch {
             isLoading.emit(true)
             if (startedFavoritesCodes == modifiedFavoritesCodes) {
                 doOnFinish()
             }
             if (modifiedFavoritesCodes.size > 1) {
-                favoriteCurrenciesUseCase.set(modifiedFavoritesCodes)
+                try {
+                    favoriteCurrenciesUseCase.set(modifiedFavoritesCodes)
+                } catch (ex: java.lang.Exception) {
+                    errors.emit(errorHandler.map(ex))
+                }
                 doOnFinish()
             } else {
                 errors.emit(R.string.not_enough_changed_currency)
@@ -61,7 +70,7 @@ class CurrencyChoiceDialogViewModel(
         }
     }
 
-    fun onCancelClick(doOnFinish: () -> Unit) {
+    override fun onCancelClick(doOnFinish: () -> Unit) {
         viewModelScope.launch {
             isLoading.emit(true)
             if (modifiedFavoritesCodes.size > 1) {

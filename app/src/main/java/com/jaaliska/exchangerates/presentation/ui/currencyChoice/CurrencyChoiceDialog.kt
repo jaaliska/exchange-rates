@@ -15,7 +15,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CurrencyChoiceDialog : DialogFragment() {
 
-    private val viewModel by viewModel<CurrencyChoiceDialogViewModel>()
+    private val viewModel by viewModel<BaseCurrencyChoiceDialogViewModel>()
     private val adapter by lazy {
         CurrencyChoiceAdapter { code, isChecked ->
             viewModel.onItemClick(code, isChecked)
@@ -48,7 +48,7 @@ class CurrencyChoiceDialog : DialogFragment() {
     private fun setupView() {
         currencyContainer.layoutManager = LinearLayoutManager(context)
         currencyContainer.adapter = adapter
-        viewModel.currencies.observe(viewLifecycleOwner) { supportedCurrencies ->
+        viewModel.items.observe(viewLifecycleOwner) { supportedCurrencies ->
             adapter.submitList(supportedCurrencies)
         }
         viewModel.isLoading.observe(viewLifecycleOwner) {

@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/currencyCode"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="14dp"
@@ -31,7 +31,7 @@
         tools:text="EUR" />
 
     <TextView
-        android:id="@+id/currencyName"
+        android:id="@+id/subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
@@ -40,7 +40,7 @@
         tools:text="Euro" />
 
     <CheckBox
-        android:id="@+id/checkboxCurrency"
+        android:id="@+id/checkbox"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"

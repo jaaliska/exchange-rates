@@ -7,12 +7,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.MoneyValueFilter
-import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
 import com.jaaliska.exchangerates.presentation.utils.observe
 import kotlinx.android.synthetic.main.fragment_screen_home.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -23,7 +21,7 @@ import java.util.*
 
 class HomeScreen : Fragment(R.layout.fragment_screen_home) {
 
-    private val viewModel by viewModel<HomeViewModel>()
+    private val viewModel by viewModel<BaseHomeViewModel>()
     private val mainAdapter by lazy {
         MainAdapter(
             baseCurrencyAmount = viewModel.baseCurrencyAmount,
@@ -40,8 +38,8 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     private fun setupUI() {
         viewModel.baseCurrencyDetails.observe(viewLifecycleOwner) {
             if (it != null) {
-                currencyCode.text = it.code
-                currencyName.text = it.name
+                title.text = it.code
+                subtitle.text = it.name
             }
         }
 
