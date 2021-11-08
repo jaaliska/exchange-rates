@@ -1,19 +1,18 @@
 package com.jaaliska.exchangerates.presentation.utils
 
 import androidx.recyclerview.widget.DiffUtil
-import com.jaaliska.exchangerates.presentation.model.NamedRate
+import com.jaaliska.exchangerates.domain.model.Rate
 
-class RatesDiffUtilCallback : DiffUtil.ItemCallback<NamedRate>() {
+class RatesDiffUtilCallback : DiffUtil.ItemCallback<Rate>() {
 
-    override fun areItemsTheSame(oldItem: NamedRate, newItem: NamedRate): Boolean {
-        return oldItem.currencyCode == newItem.currencyCode &&
-                oldItem.currencyName == newItem.currencyName &&
-                oldItem.exchangeRate == newItem.exchangeRate
+    override fun areItemsTheSame(oldItem: Rate, newItem: Rate): Boolean {
+        return oldItem.currency == oldItem.currency &&
+                oldItem.rate == newItem.rate
     }
 
     override fun areContentsTheSame(
-        oldItem: NamedRate,
-        newItem: NamedRate
+        oldItem: Rate,
+        newItem: Rate
     ): Boolean {
         return oldItem == newItem
     }

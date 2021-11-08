@@ -1,9 +1,9 @@
-package com.jaaliska.exchangerates.data.rates.model.api
+package com.jaaliska.exchangerates.data.rates.api
 
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
-data class ResponseDto(
+data class RatesResponse(
     val response: RatesDetailsDto
 ) {
     data class RatesDetailsDto(

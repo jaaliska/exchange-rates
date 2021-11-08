@@ -19,7 +19,7 @@ fun <T> Flow<T>.observe(lifecycleOwner: LifecycleOwner, action: suspend (value: 
     }
 }
 
-fun <T> Flow<T>.doOnError(block:(Throwable) -> Unit): Flow<T> = flow {
+fun <T> Flow<T>.doOnError(block: suspend (Throwable) -> Unit): Flow<T> = flow {
     try {
         collect { value -> emit(value) }
     } catch (e: Throwable) {

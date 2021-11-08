@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.main
+package com.jaaliska.exchangerates.presentation.ui.home
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.model.NamedRate
+import com.jaaliska.exchangerates.domain.model.Rate
 import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
 import kotlinx.android.synthetic.main.exchange_rates_item.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -15,45 +15,38 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-typealias ItemClickCallback = (currencyCode: String, resultAmount: Double) -> Unit
-
 class MainAdapter(
     private val baseCurrencyAmount: StateFlow<Double>,
     private val coroutineScope: CoroutineScope,
-    private val onItemClick: ItemClickCallback
-) : ListAdapter<NamedRate, MainAdapter.DataViewHolder>(RatesDiffUtilCallback()) {
+    private val onItemClick: (currencyCode: String) -> Unit
+) : ListAdapter<Rate, MainAdapter.DataViewHolder>(RatesDiffUtilCallback()) {
 
-    class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var job: Job? = null
-        private var rate: NamedRate? = null
+        private var rate: Rate? = null
         private var baseCurrencyAmount: StateFlow<Double>? = null
-        private var coroutineScope: CoroutineScope? = null
         private var resultAmount: Double? = null
 
         fun bind(
-            rate: NamedRate,
+            rate: Rate,
             baseCurrencyAmount: StateFlow<Double>,
-            coroutineScope: CoroutineScope,
-            onItemClick: ItemClickCallback
         ) {
-            this.coroutineScope = coroutineScope
             this.baseCurrencyAmount = baseCurrencyAmount
             this.rate = rate
             itemView.apply {
-                currencyCode.text = rate.currencyCode
-                currencyName.text = rate.currencyName
+                currencyCode.text = rate.currency.code
+                currencyName.text = rate.currency.name
                 this.setOnClickListener {
-                    val resAmount = resultAmount
-                    resAmount?.let { onItemClick(rate.currencyCode, resAmount) }
+                    onItemClick(rate.currency.code)
                 }
             }
         }
 
         fun onViewAttachedToWindow() {
             itemView.apply {
-                job = coroutineScope?.launch {
+                job = coroutineScope.launch {
                     baseCurrencyAmount?.collect {
-                        resultAmount = rate?.exchangeRate?.times(it)
+                        resultAmount = rate?.rate?.times(it)
                         tvResultAmount.text = String.format("%.2f", resultAmount)
                     }
                 }
@@ -85,7 +78,7 @@ class MainAdapter(
     }
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
-        holder.bind(currentList[position], baseCurrencyAmount, coroutineScope, onItemClick)
+        holder.bind(currentList[position], baseCurrencyAmount)
     }
 
 }

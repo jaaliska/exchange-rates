@@ -1,11 +1,12 @@
 package com.jaaliska.exchangerates.data.usecase
 
-import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
-import com.jaaliska.exchangerates.data.rates.repository.RetrofitRatesRepository
-import com.jaaliska.exchangerates.data.rates.repository.RoomRatesRepository
+import com.jaaliska.exchangerates.data.currency.dao.RoomCurrencyRepository
+import com.jaaliska.exchangerates.data.rates.api.RetrofitRatesRepository
+import com.jaaliska.exchangerates.data.rates.dao.RoomRatesRepository
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
 import com.jaaliska.exchangerates.presentation.service.AlarmService
-import kotlinx.coroutines.*
+import com.jaaliska.exchangerates.presentation.utils.doOnError
+import kotlinx.coroutines.flow.collect
 
 class RefreshRatesUseCaseImpl(
     private val localRatesRepository: RoomRatesRepository,
@@ -15,13 +16,16 @@ class RefreshRatesUseCaseImpl(
 ) : RefreshRatesUseCase {
 
     override suspend operator fun invoke() {
-        val favorites = localCurrencyRepository.readFavoriteCurrencies()
-        localRatesRepository.deleteAllRates()
-        for (baseCurrencyCode in favorites) {
-            val codesToLoad = favorites.filter { it != baseCurrencyCode }
-            val rates = remoteRatesRepository.getRates(baseCurrencyCode, codesToLoad)
-            localRatesRepository.saveRates(rates)
-        }
-        alarmService.startAlarm()
+        localCurrencyRepository.readFavoriteCurrencies().doOnError { print(it) }
+            .collect { favorites ->
+                localRatesRepository.deleteAll()
+                val anchorCurrency = favorites.first()
+                val rates = remoteRatesRepository.getRates(
+                    anchorCurrency,
+                    favorites.toMutableList().apply { remove(anchorCurrency) })
+                localRatesRepository.saveAll(rates)
+
+                alarmService.startAlarm()
+            }
     }
 }

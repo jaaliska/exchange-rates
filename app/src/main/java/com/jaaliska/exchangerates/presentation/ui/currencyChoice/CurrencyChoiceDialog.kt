@@ -11,12 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.observe
 import kotlinx.android.synthetic.main.dialog_currency_choice.*
-import kotlinx.android.synthetic.main.fragment_screen_home.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CurrencyChoiceDialog : DialogFragment() {
 
-    private val viewModel by viewModel<CurrencyChoiceDialogViewModel>()
+    private val viewModel by viewModel<BaseCurrencyChoiceViewModel>()
     private val adapter by lazy {
         CurrencyChoiceAdapter { code, isChecked ->
             viewModel.onItemClick(code, isChecked)
@@ -49,20 +48,17 @@ class CurrencyChoiceDialog : DialogFragment() {
     private fun setupView() {
         currencyContainer.layoutManager = LinearLayoutManager(context)
         currencyContainer.adapter = adapter
-        viewModel.currencies.observe(viewLifecycleOwner) { supportedCurrencies ->
+        viewModel.items.observe(viewLifecycleOwner) { supportedCurrencies ->
             adapter.submitList(supportedCurrencies)
         }
         viewModel.isLoading.observe(viewLifecycleOwner) {
             progressBar.visibility = if (it) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
         }
-        viewModel.errors.observe(viewLifecycleOwner) {
-            Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
+        viewModel.error.observe(viewLifecycleOwner) {
+            it?.let {
+                Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
+            }
         }
-        buttonOk.setOnClickListener {
-            viewModel.onOkClick { dismiss() }
-        }
-        buttonCancel.setOnClickListener {
-            viewModel.onCancelClick { dismiss() }
-        }
+        buttonOk.setOnClickListener { dismiss() }
     }
 }

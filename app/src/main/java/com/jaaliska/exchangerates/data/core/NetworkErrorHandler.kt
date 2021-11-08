@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.data.error
+package com.jaaliska.exchangerates.data.core
 
 import com.jaaliska.exchangerates.domain.GenericError
 import com.jaaliska.exchangerates.domain.NetworkError

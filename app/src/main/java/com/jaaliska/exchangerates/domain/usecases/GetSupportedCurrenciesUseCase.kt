@@ -1,8 +1,8 @@
 package com.jaaliska.exchangerates.domain.usecases
 
 import com.jaaliska.exchangerates.domain.model.Currency
+import kotlinx.coroutines.flow.Flow
 
 interface GetSupportedCurrenciesUseCase {
-
-    suspend operator fun invoke(forceUpdate: Boolean): List<Currency>
+    operator fun invoke(): Flow<List<Currency>>
 }

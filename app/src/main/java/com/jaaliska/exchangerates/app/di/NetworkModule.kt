@@ -60,11 +60,9 @@ private fun provideRetrofit(
 }
 
 private fun provideLoggingInterceptor(): Interceptor {
-    val logger = object : HttpLoggingInterceptor.Logger {
-        override fun log(message: String) {
-            Timber.tag("OkHttp")
-            Timber.d(message)
-        }
+    val logger = HttpLoggingInterceptor.Logger { message ->
+        Timber.tag("OkHttp")
+        Timber.d(message)
     }
     return HttpLoggingInterceptor(logger).apply {
         level = HttpLoggingInterceptor.Level.BODY

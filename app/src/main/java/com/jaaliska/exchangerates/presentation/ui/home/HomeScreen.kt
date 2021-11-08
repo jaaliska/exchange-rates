@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.main
+package com.jaaliska.exchangerates.presentation.ui.home
 
 import android.os.Bundle
 import android.text.Editable
@@ -7,12 +7,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.MoneyValueFilter
-import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
 import com.jaaliska.exchangerates.presentation.utils.observe
 import kotlinx.android.synthetic.main.fragment_screen_home.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -68,9 +66,6 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
 
         viewModel.errors.observe(viewLifecycleOwner) {
             Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
-        }
-        viewModel.currencyChoiceDialog.observe(viewLifecycleOwner) {
-            it.show(parentFragmentManager, CURRENCY_CHOICE_DIALOG)
         }
     }
 

@@ -1,43 +1,37 @@
 package com.jaaliska.exchangerates.data.usecase
 
-import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
-import com.jaaliska.exchangerates.domain.model.Currency
-import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
+import com.jaaliska.exchangerates.data.currency.dao.RoomCurrencyRepository
+import com.jaaliska.exchangerates.data.rates.api.RetrofitRatesRepository
+import com.jaaliska.exchangerates.data.rates.dao.RoomRatesRepository
+import com.jaaliska.exchangerates.domain.model.ExchangeRates
+import com.jaaliska.exchangerates.domain.repository.AnchorCurrencyRepository
 import com.jaaliska.exchangerates.domain.usecases.GetRatesUseCase
-import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
+import java.util.*
 
-class GetNamedRatesUseCaseImpl (
+@ExperimentalCoroutinesApi
+class GetNamedRatesUseCaseImpl(
     private val localCurrencyRepository: RoomCurrencyRepository,
-    private val getRatesUseCase: GetRatesUseCase
-) : GetNamedRatesUseCase {
+    private val remoteRatesRepository: RetrofitRatesRepository,
+    private val localRatesRepository: RoomRatesRepository,
+    private val anchorCurrencyRepository: AnchorCurrencyRepository
+) : GetRatesUseCase {
 
-    override suspend operator fun invoke(baseCurrencyCode: String): Flow<NamedExchangeRates> {
-        val favorites = localCurrencyRepository.readFavoriteCurrencies()
-
-        val codesToLoad = favorites.toMutableList()
-        if (!codesToLoad.contains(baseCurrencyCode)) {
-            codesToLoad.add(baseCurrencyCode)
-        }
-
-        val currencies =
-            localCurrencyRepository.readSupportedCurrencies(codesToLoad).associateBy { it.code }
-        val rates = getRatesUseCase(baseCurrencyCode, favorites)
-        val getCurrency = { code: String -> currencies[code] ?: Currency("", code) }
-
-        return rates.distinctUntilChanged().map {
-            NamedExchangeRates(
-                date = it.date,
-                baseCurrency = getCurrency(it.baseCurrencyCode),
-                rates = it.rates.map {
-                    Pair(
-                        getCurrency(it.currencyCode),
-                        it.exchangeRate
-                    )
+    override operator fun invoke(): Flow<ExchangeRates?> {
+        return anchorCurrencyRepository.getAnchorCurrencyCode()
+            .flatMapLatest { anchorCurrencyCode ->
+                localCurrencyRepository.readFavoriteCurrencies().map {
+                    val favorites = it.toMutableList()
+                    val anchorCurrency =
+                        favorites.find { it.code == anchorCurrencyCode } ?: favorites.firstOrNull()
+                    anchorCurrency ?: return@map null
+                    favorites.remove(anchorCurrency)
+                    val rates = remoteRatesRepository.getRates(
+                        anchorCurrency,
+                        favorites.apply { remove(anchorCurrency) })
+                    ExchangeRates(date = Date(), baseCurrency = anchorCurrency, rates = rates)
                 }
-            )
-        }
+            }
     }
 }

@@ -1,7 +1,10 @@
 package com.jaaliska.exchangerates.data.currency.dao
 
-import androidx.room.*
-import com.jaaliska.exchangerates.data.currency.model.db.RoomCurrency
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CurrencyDao {
@@ -9,18 +12,15 @@ interface CurrencyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(value: List<RoomCurrency>)
 
-    @Query("UPDATE currency SET isFavorite = code IN (:codes)")
-    suspend fun setIsFavorite(codes: List<String>)
+    @Query("UPDATE currency SET is_favorite = :isFavorite WHERE code = :code")
+    suspend fun setIsFavorite(code: String, isFavorite: Boolean)
 
     @Query("DELETE FROM currency")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM currency WHERE code IN (:codes)")
-    suspend fun getByCodes(codes: List<String>): List<RoomCurrency>
-
     @Query("SELECT * FROM currency")
-    suspend fun readSupportedCurrency(): List<RoomCurrency>
+    fun readAll(): Flow<List<RoomCurrency>>
 
-    @Query("SELECT code FROM currency WHERE isFavorite")
-    suspend fun readFavoriteCurrencyCodes(): List<String>
+    @Query("SELECT * FROM currency WHERE is_favorite")
+    fun readFavorites(): Flow<List<RoomCurrency>>
 }
