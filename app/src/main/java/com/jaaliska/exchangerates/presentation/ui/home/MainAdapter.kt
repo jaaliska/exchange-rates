@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.Rate
 import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
 import kotlinx.android.synthetic.main.exchange_rates_item.view.*
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 class MainAdapter(
     private val baseCurrencyAmount: StateFlow<Double>,
     private val coroutineScope: CoroutineScope,
-    private val onItemClick: (currencyCode: String) -> Unit
+    private val onItemClick: (currencyCode: Currency) -> Unit
 ) : ListAdapter<Rate, MainAdapter.DataViewHolder>(RatesDiffUtilCallback()) {
 
     inner class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -34,10 +35,10 @@ class MainAdapter(
             this.baseCurrencyAmount = baseCurrencyAmount
             this.rate = rate
             itemView.apply {
-                currencyCode.text = rate.currency.code
-                currencyName.text = rate.currency.name
+                title.text = rate.currency.code
+                subtitle.text = rate.currency.name
                 this.setOnClickListener {
-                    onItemClick(rate.currency.code)
+                    onItemClick(rate.currency)
                 }
             }
         }

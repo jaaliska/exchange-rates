@@ -30,7 +30,7 @@ class RoomCurrencyRepository(private val db: ExchangeRatesDatabase) {
         return db.currencyDao().readFavorites().map { it.map(RoomCurrency::toDomain) }
     }
 
-    suspend fun markAsFavorite(currencyCode: String, isFavorite: Boolean) {
-        db.currencyDao().setIsFavorite(code = currencyCode, isFavorite = isFavorite)
+    suspend fun markAsFavorite(currency: Currency, isFavorite: Boolean) {
+        db.currencyDao().setIsFavorite(code = currency.code, isFavorite = isFavorite)
     }
 }

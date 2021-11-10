@@ -3,24 +3,22 @@ package com.jaaliska.exchangerates.presentation.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.domain.GenericError
-import com.jaaliska.exchangerates.domain.NetworkError
+import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
+import com.jaaliska.exchangerates.domain.model.*
 import com.jaaliska.exchangerates.domain.model.Currency
-import com.jaaliska.exchangerates.domain.model.ExchangeRates
-import com.jaaliska.exchangerates.domain.model.Rate
-import com.jaaliska.exchangerates.domain.repository.AnchorCurrencyRepository
-import com.jaaliska.exchangerates.domain.usecases.GetRatesUseCase
-import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
+import com.jaaliska.exchangerates.domain.usecase.SetAnchorCurrencyUseCase
 import com.jaaliska.exchangerates.presentation.utils.doOnError
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.*
 
 class HomeViewModel(
-    getNamedRatesUseCase: GetRatesUseCase,
-    private val refreshRatesUseCase: RefreshRatesUseCase,
-    private val prefsRepository: AnchorCurrencyRepository
+    private val ratesDataSource: RatesDataSource,
+    private val setAnchorCurrencyUseCase: SetAnchorCurrencyUseCase
 ) : ViewModel() {
 
     val exchangeRates = MutableStateFlow<List<Rate>>(listOf())
@@ -28,43 +26,39 @@ class HomeViewModel(
     val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
     val updateDate = MutableStateFlow<Date?>(null)
     val isLoading = MutableStateFlow(false)
-    val errors = MutableSharedFlow<Int>(0)
+    val error = MutableStateFlow<Int?>(null)
 
     init {
-        getNamedRatesUseCase()
+        ratesDataSource.observe()
             .doOnError {
                 val messageRes: Int = when (it) {
                     is NetworkError -> R.string.network_error
                     is GenericError -> R.string.something_went_wrong
                     else -> R.string.something_went_wrong
                 }
-                errors.emit(messageRes)
+                error.emit(messageRes)
             }
+            .onEach(::applyExchangeRatesToScreen)
             .flowOn(Dispatchers.IO)
-            .onEach { it?.let(::applyExchangeRatesToScreen) }
             .launchIn(viewModelScope)
     }
 
-    fun onCurrencySelection(currencyCode: String) {
-        prefsRepository.setAnchorCurrencyCode(currencyCode)
+    fun onCurrencySelection(currency: Currency) {
+        viewModelScope.launch(Dispatchers.IO) { setAnchorCurrencyUseCase(currency) }
     }
 
     fun onSwipeToRefresh() {
         viewModelScope.launch(Dispatchers.IO) {
             isLoading.emit(true)
-            try {
-                refreshRatesUseCase()
-            } catch (e: Exception) {
-                print(e)
-            }
+            ratesDataSource.refresh()
             isLoading.emit(false)
         }
     }
 
-    private fun applyExchangeRatesToScreen(value: ExchangeRates) {
-        exchangeRates.value = value.rates
-        baseCurrencyDetails.value = value.baseCurrency
-        updateDate.value = value.date
+    private fun applyExchangeRatesToScreen(value: ExchangeRates?) {
+        exchangeRates.value = value?.rates ?: listOf()
+        baseCurrencyDetails.value = value?.baseCurrency
+        updateDate.value = value?.date
     }
 
     companion object {

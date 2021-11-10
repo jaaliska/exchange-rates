@@ -4,13 +4,12 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.DelicateCoroutinesApi
 import java.util.*
 
-class AlarmService(
-    private val context: Context
-) {
+@DelicateCoroutinesApi
+class AlarmService(private val context: Context) {
 
     fun startAlarm() {
         cancelAlarm()
@@ -18,7 +17,6 @@ class AlarmService(
         calendar.timeInMillis = System.currentTimeMillis() + DAY_IN_MILLIS
         val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
         alarmManager!!.setExact(AlarmManager.RTC, calendar.timeInMillis, createPendingIntent())
-        Log.d("AlarmService", "startAlarm ${calendar.time}")
     }
 
     private fun cancelAlarm() {

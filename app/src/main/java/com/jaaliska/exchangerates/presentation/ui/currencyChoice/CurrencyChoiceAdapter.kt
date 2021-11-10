@@ -6,29 +6,27 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
-import kotlinx.android.synthetic.main.currency_choice_item.view.*
+import kotlinx.android.synthetic.main.list_item_checkable.view.*
 
 class CurrencyChoiceAdapter(
-    private val onItemClick: (item: BaseCurrencyChoiceViewModel.SelectableItem, isCheck: Boolean) -> Unit
-) : ListAdapter<BaseCurrencyChoiceViewModel.SelectableItem, CurrencyChoiceAdapter.CheckableViewHolder>(
-    BaseCurrencyChoiceViewModel.SelectableItem.diffCallback
+    private val onItemClick: (item: BaseCurrencyChoiceViewModel.CheckableItem, isCheck: Boolean) -> Unit
+) : ListAdapter<BaseCurrencyChoiceViewModel.CheckableItem, CurrencyChoiceAdapter.CheckableViewHolder>(
+    BaseCurrencyChoiceViewModel.CheckableItem.diffCallback
 ) {
 
     class CheckableViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(
-            item: BaseCurrencyChoiceViewModel.SelectableItem,
-            onItemClick: (item: BaseCurrencyChoiceViewModel.SelectableItem, isCheck: Boolean) -> Unit
+            item: BaseCurrencyChoiceViewModel.CheckableItem,
+            onItemClick: (item: BaseCurrencyChoiceViewModel.CheckableItem, isCheck: Boolean) -> Unit
         ) {
             itemView.apply {
-                currencyName.text = item.subtitle
-                checkboxCurrency.isChecked = item.isSelected
+                title.text = item.title
+                subtitle.text = item.subtitle
+                checkbox.isChecked = item.isChecked
 
                 setOnClickListener {
-                    val changedValue = !checkboxCurrency.isChecked
-                    onItemClick(item, changedValue)
-                    item.isSelected = changedValue
-                    checkboxCurrency.isChecked = changedValue
+                    onItemClick(item, !checkbox.isChecked)
                 }
             }
         }
@@ -37,7 +35,7 @@ class CurrencyChoiceAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheckableViewHolder =
         CheckableViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.currency_choice_item, parent, false)
+                .inflate(R.layout.list_item_checkable, parent, false)
         )
 
     override fun getItemCount(): Int {

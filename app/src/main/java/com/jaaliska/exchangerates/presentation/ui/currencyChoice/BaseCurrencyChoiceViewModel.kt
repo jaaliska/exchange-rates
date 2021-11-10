@@ -6,32 +6,32 @@ import kotlinx.coroutines.flow.Flow
 
 abstract class BaseCurrencyChoiceViewModel : ViewModel() {
 
-    abstract val items: Flow<List<SelectableItem>>
+    abstract val items: Flow<List<CheckableItem>>
     abstract val error: Flow<Int?>
     abstract val isLoading: Flow<Boolean>
 
-    abstract fun onItemClick(item: SelectableItem, isChecked: Boolean)
+    abstract fun onItemClick(item: CheckableItem, isChecked: Boolean)
 
 
-    data class SelectableItem(
+    data class CheckableItem(
         val title: String,
         val subtitle: String,
-        var isSelected: Boolean
+        var isChecked: Boolean
     ) {
         companion object {
-            val diffCallback = object : DiffUtil.ItemCallback<SelectableItem>() {
+            val diffCallback = object : DiffUtil.ItemCallback<CheckableItem>() {
                 override fun areItemsTheSame(
-                    oldItem: SelectableItem,
-                    newItem: SelectableItem
+                    oldItem: CheckableItem,
+                    newItem: CheckableItem
                 ): Boolean {
                     return oldItem.title == newItem.title &&
                             oldItem.subtitle == newItem.subtitle &&
-                            oldItem.isSelected == newItem.isSelected
+                            oldItem.isChecked == newItem.isChecked
                 }
 
                 override fun areContentsTheSame(
-                    oldItem: SelectableItem,
-                    newItem: SelectableItem
+                    oldItem: CheckableItem,
+                    newItem: CheckableItem
                 ): Boolean {
                     return oldItem == newItem
                 }

@@ -1,10 +1,10 @@
-package com.jaaliska.exchangerates.domain
+package com.jaaliska.exchangerates.domain.model
 
 import timber.log.Timber
-import java.lang.Exception
 
 class NetworkError(message: String? = null) : Exception()
 class GenericError(message: String? = null): Exception()
+
 class RatesNotFoundException(
     private val baseCurrencyCode: String,
     cause: Throwable? = null

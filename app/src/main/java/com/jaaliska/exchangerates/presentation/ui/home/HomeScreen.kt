@@ -38,14 +38,14 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     private fun setupUI() {
         viewModel.baseCurrencyDetails.observe(viewLifecycleOwner) {
             if (it != null) {
-                currencyCode.text = it.code
-                currencyName.text = it.name
+                title.text = it.code
+                subtitle.text = it.name
             }
         }
 
         ratesContainer.adapter = mainAdapter
 
-            viewModel.updateDate.observe(viewLifecycleOwner) {
+        viewModel.updateDate.observe(viewLifecycleOwner) {
             if (it != null) {
                 updateData.text = getString(
                     R.string.the_last_update_was_at,
@@ -64,8 +64,10 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
             swipeRefresh.isRefreshing = it
         }
 
-        viewModel.errors.observe(viewLifecycleOwner) {
-            Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
+            }
         }
     }
 

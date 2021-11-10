@@ -3,21 +3,21 @@ package com.jaaliska.exchangerates.presentation.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
+import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.java.KoinJavaComponent
+import org.koin.core.component.inject
 
+@DelicateCoroutinesApi
 class AlertReceiver : BroadcastReceiver(), KoinComponent {
 
-    private val refreshRatesUseCase: RefreshRatesUseCase by KoinJavaComponent.inject(
-        RefreshRatesUseCase::class.java
-    )
+    private val ratesDataSource by inject<RatesDataSource>()
 
     override fun onReceive(context: Context, intent: Intent) {
         GlobalScope.launch {
-            refreshRatesUseCase()
+            ratesDataSource.refresh()
             val notificationHelper = NotificationHelper(context)
             notificationHelper.manager?.notify(1, notificationHelper.buildChannelNotification())
         }

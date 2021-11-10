@@ -1,7 +1,7 @@
 package com.jaaliska.exchangerates.data.core
 
-import com.jaaliska.exchangerates.domain.GenericError
-import com.jaaliska.exchangerates.domain.NetworkError
+import com.jaaliska.exchangerates.domain.model.GenericError
+import com.jaaliska.exchangerates.domain.model.NetworkError
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
