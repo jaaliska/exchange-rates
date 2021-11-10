@@ -6,7 +6,9 @@ import com.jaaliska.exchangerates.domain.usecase.SetAnchorCurrencyUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
-class SetAnchorCurrencyUseCaseImpl(private val anchorCurrencyRepository: SharedPrefAnchorCurrencyRepository) :
+class SetAnchorCurrencyUseCaseImpl(
+    private val anchorCurrencyRepository: SharedPrefAnchorCurrencyRepository
+) :
     SetAnchorCurrencyUseCase {
 
     override suspend fun invoke(currency: Currency) {
