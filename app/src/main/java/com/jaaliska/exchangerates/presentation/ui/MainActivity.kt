@@ -4,7 +4,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
+import com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice.CurrencyChoiceDialog
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 

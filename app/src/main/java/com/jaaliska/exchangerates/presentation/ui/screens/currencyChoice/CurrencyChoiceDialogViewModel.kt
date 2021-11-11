@@ -1,9 +1,10 @@
-package com.jaaliska.exchangerates.presentation.ui.currencyChoice
+package com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice
 
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.usecase.UpdateCurrencyFavoriteStateUseCase
+import com.jaaliska.exchangerates.presentation.ui.common.list.checkable_item.CheckableItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

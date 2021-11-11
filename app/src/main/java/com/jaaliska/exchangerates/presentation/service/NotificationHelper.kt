@@ -14,7 +14,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import com.jaaliska.exchangerates.presentation.ui.MainActivity
 
-
 class NotificationHelper(base: Context?) : ContextWrapper(base) {
     private var mManager: NotificationManager? = null
 

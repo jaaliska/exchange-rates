@@ -10,10 +10,10 @@
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".presentation.ui.home.HomeScreen">
+        tools:context=".presentation.ui.screens.home.HomeScreen">
 
         <TextView
-            android:id="@+id/updateData"
+            android:id="@+id/textUpdateDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -22,7 +22,7 @@
             tools:text="The last update was at 11.00"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/baseCurrency"
+            android:id="@+id/containerAnchor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/purple"
@@ -32,10 +32,10 @@
             android:paddingBottom="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/updateData">
+            app:layout_constraintTop_toBottomOf="@id/textUpdateDate">
 
             <ImageView
-                android:id="@+id/icon"
+                android:id="@+id/imageIcon"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/ic_money"
@@ -43,28 +43,28 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/textTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@id/icon"
-                app:layout_constraintTop_toTopOf="@id/icon"
+                app:layout_constraintStart_toEndOf="@id/imageIcon"
+                app:layout_constraintTop_toTopOf="@id/imageIcon"
                 tools:text="EUR" />
 
             <TextView
-                android:id="@+id/subtitle"
+                android:id="@+id/textSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/icon"
-                app:layout_constraintStart_toEndOf="@id/icon"
+                app:layout_constraintBottom_toBottomOf="@id/imageIcon"
+                app:layout_constraintStart_toEndOf="@id/imageIcon"
                 tools:text="Euro" />
 
             <EditText
-                android:id="@+id/currencyAmount"
+                android:id="@+id/textAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autofillHints="1"
@@ -77,14 +77,14 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ratesContainer"
+            android:id="@+id/recyclerItems"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/baseCurrency"
-            tools:listitem="@layout/exchange_rates_item" />
+            app:layout_constraintTop_toBottomOf="@+id/containerAnchor"
+            tools:listitem="@layout/list_item_home" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.currencyChoice
+package com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.presentation.ui.common.list.checkable_item.CheckableItemAdapter
 import com.jaaliska.exchangerates.presentation.utils.observe
 import kotlinx.android.synthetic.main.dialog_currency_choice.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -17,7 +18,7 @@ class CurrencyChoiceDialog : DialogFragment() {
 
     private val viewModel by viewModel<BaseCurrencyChoiceViewModel>()
     private val adapter by lazy {
-        CurrencyChoiceAdapter { code, isChecked ->
+        CheckableItemAdapter { code, isChecked ->
             viewModel.onItemClick(code, isChecked)
         }
     }

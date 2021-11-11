@@ -1,8 +1,8 @@
 package com.jaaliska.exchangerates.app.di
 
-import com.jaaliska.exchangerates.presentation.ui.currencyChoice.BaseCurrencyChoiceViewModel
-import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialogViewModel
-import com.jaaliska.exchangerates.presentation.ui.home.HomeViewModel
+import com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice.BaseCurrencyChoiceViewModel
+import com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice.CurrencyChoiceDialogViewModel
+import com.jaaliska.exchangerates.presentation.ui.screens.home.HomeViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
