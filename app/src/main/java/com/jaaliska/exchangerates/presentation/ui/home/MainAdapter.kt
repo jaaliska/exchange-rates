@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.domain.model.Currency
-import com.jaaliska.exchangerates.domain.model.Rate
+import com.jaaliska.exchangerates.domain.model.RatesSnapshot
 import com.jaaliska.exchangerates.presentation.utils.RatesDiffUtilCallback
 import kotlinx.android.synthetic.main.exchange_rates_item.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -20,16 +20,16 @@ class MainAdapter(
     private val baseCurrencyAmount: StateFlow<Double>,
     private val coroutineScope: CoroutineScope,
     private val onItemClick: (currencyCode: Currency) -> Unit
-) : ListAdapter<Rate, MainAdapter.DataViewHolder>(RatesDiffUtilCallback()) {
+) : ListAdapter<RatesSnapshot.Rate, MainAdapter.DataViewHolder>(RatesDiffUtilCallback()) {
 
     inner class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var job: Job? = null
-        private var rate: Rate? = null
+        private var rate: RatesSnapshot.Rate? = null
         private var baseCurrencyAmount: StateFlow<Double>? = null
         private var resultAmount: Double? = null
 
         fun bind(
-            rate: Rate,
+            rate: RatesSnapshot.Rate,
             baseCurrencyAmount: StateFlow<Double>,
         ) {
             this.baseCurrencyAmount = baseCurrencyAmount

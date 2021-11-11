@@ -1,12 +1,12 @@
-package com.jaaliska.exchangerates.data.rates
+package com.jaaliska.exchangerates.data.rates_snapshot
 
 import com.jaaliska.exchangerates.data.anchor_currency.SharedPrefAnchorCurrencyRepository
 import com.jaaliska.exchangerates.data.core.registerHooks
 import com.jaaliska.exchangerates.data.currency.dao.RoomCurrencyRepository
-import com.jaaliska.exchangerates.data.rates.api.RetrofitRatesRepository
-import com.jaaliska.exchangerates.data.rates.dao.RoomRatesRepository
+import com.jaaliska.exchangerates.data.rates_snapshot.api.RetrofitRatesSnapshotRepository
+import com.jaaliska.exchangerates.data.rates_snapshot.dao.RoomRatesSnapshotRepository
 import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
-import com.jaaliska.exchangerates.domain.model.ExchangeRates
+import com.jaaliska.exchangerates.domain.model.RatesSnapshot
 import com.jaaliska.exchangerates.presentation.service.AlarmService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -17,8 +17,8 @@ import java.util.*
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
 class MediatorRatesDataSource(
-    private val localRatesRepository: RoomRatesRepository,
-    private val remoteRatesRepository: RetrofitRatesRepository,
+    private val localRatesRepository: RoomRatesSnapshotRepository,
+    private val remoteRatesRepository: RetrofitRatesSnapshotRepository,
     private val localCurrencyRepository: RoomCurrencyRepository,
     private val anchorCurrencyRepository: SharedPrefAnchorCurrencyRepository,
     private val alarmService: AlarmService,
@@ -28,31 +28,27 @@ class MediatorRatesDataSource(
     init {
         with(coroutineScope) {
             registerHooks(
-                anchorCurrencyRepository.observe(),
                 localCurrencyRepository.readFavoriteCurrencies(),
                 action = ::refresh
             )
         }
     }
 
-    override fun observe(): Flow<ExchangeRates?> {
+    override fun observe(): Flow<RatesSnapshot?> {
         return anchorCurrencyRepository.observe().flatMapLatest { anchorCurrencyCode ->
             localCurrencyRepository.readFavoriteCurrencies().flatMapLatest {
                 val favorites = it.toMutableList()
                 val anchorCurrency = favorites.find { it.code == anchorCurrencyCode }
                     ?: favorites.firstOrNull()
-                    ?: return@flatMapLatest flow { emit(null) }
+                    ?: run {
+                        refresh()
+                        return@flatMapLatest observe()
+                    }
 
-                val localRates = localRatesRepository.readAll().first()
-                if (localRates.isEmpty()) refresh()
+                val localRates = localRatesRepository.read(baseCurrency = anchorCurrency).first()
+                if (localRates == null) refresh()
 
-                localRatesRepository.readAll().map { rates ->
-                    ExchangeRates(
-                        date = Date(),
-                        baseCurrency = anchorCurrency,
-                        rates = rates
-                    )
-                }
+                localRatesRepository.read(baseCurrency = anchorCurrency)
             }
         }
     }
@@ -60,14 +56,16 @@ class MediatorRatesDataSource(
     override suspend fun refresh() {
         val anchorCurrencyCode = anchorCurrencyRepository.observe().first()
         val favorites = localCurrencyRepository.readFavoriteCurrencies().first()
-        localRatesRepository.deleteAll()
-        val anchorCurrency =
-            favorites.find { it.code == anchorCurrencyCode } ?: favorites.first()
 
-        val rates = remoteRatesRepository.getRates(
-            anchorCurrency,
-            favorites.toMutableList().apply { remove(anchorCurrency) })
-        localRatesRepository.saveAll(rates)
+        val anchorCurrency =
+            favorites.find { it.code == anchorCurrencyCode } ?: favorites.firstOrNull() ?: return
+        val ratesToLoad = favorites.toMutableList().apply { remove(anchorCurrency) }
+        if (ratesToLoad.isEmpty()) return
+
+        localRatesRepository.delete(baseCurrency = anchorCurrency)
+
+        val rates = remoteRatesRepository.getRates(anchorCurrency, ratesToLoad)
+        localRatesRepository.save(rates)
 
         alarmService.startAlarm()
     }

@@ -4,7 +4,7 @@ import com.jaaliska.exchangerates.data.mapper.ExchangeRatesMapper
 import com.jaaliska.exchangerates.data.model.api.latestRates.RatesDetailsDto
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.Rate
-import com.jaaliska.exchangerates.domain.model.ExchangeRates
+import com.jaaliska.exchangerates.domain.model.RatesSnapshot
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 import java.util.*
@@ -37,7 +37,7 @@ class RatesMapperTest {
     @Test
     fun `when clear request`() {
         val result = mapper.map(ratesDetailsDto, supportedCurrencies)
-        val expect = ExchangeRates(
+        val expect = RatesSnapshot(
             date = date,
             baseCurrencyCode = Currency(code = "USD", name = "United States dollar"),
             listOf(
@@ -57,7 +57,7 @@ class RatesMapperTest {
         supportedCurrencies.remove("RUB")
         supportedCurrencies.remove("USD")
         val result = mapper.map(ratesDetailsDto, supportedCurrencies)
-        val expect = ExchangeRates(
+        val expect = RatesSnapshot(
             date = date,
             baseCurrencyCode = Currency(code = "USD", name = ""),
             listOf(
@@ -82,7 +82,7 @@ class RatesMapperTest {
             )
         )
         val result = mapper.map(ratesDetailsDto, supportedCurrencies)
-        val expect = ExchangeRates(
+        val expect = RatesSnapshot(
             date = date,
             baseCurrencyCode = Currency(code = "USD", name = "United States dollar"),
             listOf(

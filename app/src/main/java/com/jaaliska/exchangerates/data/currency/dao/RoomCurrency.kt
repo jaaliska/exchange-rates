@@ -8,9 +8,12 @@ import com.jaaliska.exchangerates.domain.model.Currency
 @Entity(tableName = "currency")
 data class RoomCurrency(
     @PrimaryKey
+    @ColumnInfo(name = "code")
     val code: String,
+
     @ColumnInfo(name = "name")
     val name: String,
+
     @ColumnInfo(name = "is_favorite")
     val isFavorite: Boolean
 ) {

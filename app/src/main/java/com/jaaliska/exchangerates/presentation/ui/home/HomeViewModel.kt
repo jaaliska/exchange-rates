@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
-import com.jaaliska.exchangerates.domain.model.*
 import com.jaaliska.exchangerates.domain.model.Currency
+import com.jaaliska.exchangerates.domain.model.GenericError
+import com.jaaliska.exchangerates.domain.model.NetworkError
+import com.jaaliska.exchangerates.domain.model.RatesSnapshot
 import com.jaaliska.exchangerates.domain.usecase.SetAnchorCurrencyUseCase
 import com.jaaliska.exchangerates.presentation.utils.doOnError
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +23,7 @@ class HomeViewModel(
     private val setAnchorCurrencyUseCase: SetAnchorCurrencyUseCase
 ) : ViewModel() {
 
-    val exchangeRates = MutableStateFlow<List<Rate>>(listOf())
+    val exchangeRates = MutableStateFlow<List<RatesSnapshot.Rate>>(listOf())
     val baseCurrencyAmount = MutableStateFlow(DEFAULT_BASE_CURRENCY_AMOUNT)
     val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
     val updateDate = MutableStateFlow<Date?>(null)
@@ -55,7 +57,7 @@ class HomeViewModel(
         }
     }
 
-    private fun applyExchangeRatesToScreen(value: ExchangeRates?) {
+    private fun applyExchangeRatesToScreen(value: RatesSnapshot?) {
         exchangeRates.value = value?.rates ?: listOf()
         baseCurrencyDetails.value = value?.baseCurrency
         updateDate.value = value?.date

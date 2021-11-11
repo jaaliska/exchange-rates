@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.data.rates.api
+package com.jaaliska.exchangerates.data.rates_snapshot.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query

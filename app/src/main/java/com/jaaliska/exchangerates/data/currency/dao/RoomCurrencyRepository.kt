@@ -11,13 +11,7 @@ class RoomCurrencyRepository(private val db: ExchangeRatesDatabase) {
     suspend fun saveSupportedCurrencies(currencies: List<Currency>) {
         db.withTransaction {
             db.currencyDao().deleteAll()
-            val list = currencies.map { currency ->
-                RoomCurrency(
-                    code = currency.code,
-                    name = currency.name,
-                    isFavorite = false
-                )
-            }
+            val list = currencies.map { currency -> RoomCurrency(currency) }
             db.currencyDao().insert(list)
         }
     }

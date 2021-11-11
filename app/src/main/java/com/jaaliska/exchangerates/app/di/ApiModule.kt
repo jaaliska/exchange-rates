@@ -1,7 +1,7 @@
 package com.jaaliska.exchangerates.app.di
 
 import com.jaaliska.exchangerates.data.currency.api.CurrencyAPI
-import com.jaaliska.exchangerates.data.rates.api.RatesAPI
+import com.jaaliska.exchangerates.data.rates_snapshot.api.RatesAPI
 import org.koin.core.module.Module
 import retrofit2.Retrofit
 
