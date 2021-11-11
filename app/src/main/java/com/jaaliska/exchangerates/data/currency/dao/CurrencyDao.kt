@@ -21,6 +21,6 @@ interface CurrencyDao {
     @Query("SELECT * FROM currency")
     suspend fun readSupportedCurrency(): List<RoomCurrency>
 
-    @Query("SELECT code FROM currency WHERE isFavorite")
-    suspend fun readFavoriteCurrencyCodes(): List<String>
+    @Query("SELECT * FROM currency WHERE isFavorite")
+    suspend fun readFavoriteCurrencyCodes(): List<RoomCurrency>
 }

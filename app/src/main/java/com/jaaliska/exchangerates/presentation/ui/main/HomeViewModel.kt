@@ -3,12 +3,12 @@ package com.jaaliska.exchangerates.presentation.ui.main
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.data.rates.repository.BaseCurrencyCode
 import com.jaaliska.exchangerates.domain.model.Currency
+import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
 import com.jaaliska.exchangerates.presentation.error.ErrorHandler
-import com.jaaliska.exchangerates.presentation.model.NamedExchangeRates
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
 import com.jaaliska.exchangerates.presentation.utils.doOnError
 import kotlinx.coroutines.flow.*
@@ -23,7 +23,7 @@ class HomeViewModel(
     private val getRatesUpdateDates: Flow<Map<BaseCurrencyCode, Date>>
 ) : BaseHomeViewModel() {
 
-    override val exchangeRates = MutableStateFlow<List<NamedRate>>(listOf())
+    override val items = MutableStateFlow<List<Item>>(listOf())
     override val baseCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)
     override val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
     override val updateDate = MutableStateFlow<Date?>(null)
@@ -103,12 +103,12 @@ class HomeViewModel(
         }
     }
 
-    private fun applyExchangeRatesToScreen(value: NamedExchangeRates) {
-        exchangeRates.value = value.rates.map {
-            NamedRate(
-                currencyCode = it.first.code,
-                currencyName = it.first.name,
-                exchangeRate = it.second
+    private fun applyExchangeRatesToScreen(value: ExchangeRates) {
+        items.value = value.rates.map {
+            Item(
+                title = it.currency.code,
+                subtitle = it.currency.name,
+                amount = it.exchangeRate
             )
         }
         baseCurrencyDetails.value = value.baseCurrency

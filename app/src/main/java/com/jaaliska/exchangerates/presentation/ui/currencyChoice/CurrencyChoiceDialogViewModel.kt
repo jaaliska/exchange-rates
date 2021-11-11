@@ -25,7 +25,7 @@ class CurrencyChoiceDialogViewModel(
         viewModelScope.launch {
             try {
                 val supportedCurrencies = getSupportedCurrenciesUseCase(true)
-                startedFavoritesCodes = favoriteCurrenciesUseCase.get()
+                startedFavoritesCodes = favoriteCurrenciesUseCase.get().map { it.code }
                 modifiedFavoritesCodes = mutableListOf(*startedFavoritesCodes.toTypedArray())
                 items.emit(supportedCurrencies.map {
                     SelectableItem(

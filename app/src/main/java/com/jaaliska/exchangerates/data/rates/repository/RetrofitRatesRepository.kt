@@ -3,35 +3,41 @@ package com.jaaliska.exchangerates.data.rates.repository
 import com.jaaliska.exchangerates.data.error.NetworkErrorHandler
 import com.jaaliska.exchangerates.data.rates.api.RatesAPI
 import com.jaaliska.exchangerates.data.rates.model.api.ResponseDto
+import com.jaaliska.exchangerates.domain.CurrencyNotFoundException
+import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.model.Rate
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import java.lang.StringBuilder
 
 class RetrofitRatesRepository(
-    private val api: RatesAPI,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val api: RatesAPI
 ) {
     private val networkErrorHandler = NetworkErrorHandler()
 
     suspend fun getRates(
-        baseCurrencyCode: String,
-        currencyCodes: List<String>
+        baseCurrency: Currency,
+        currencyCodes: List<Currency>
     ): ExchangeRates {
         val latestRates: ResponseDto.RatesDetailsDto
         try {
             latestRates =
-                api.getLatestRates(baseCurrencyCode, currencyCodes.mapListValuesToString()).response
+                api.getLatestRates(
+                    baseCurrency.code,
+                    currencyCodes.map { it.code }.mapListValuesToString()
+                ).response
         } catch (e: Exception) {
             throw networkErrorHandler.mapError(e)
         }
         return ExchangeRates(
             date = latestRates.date,
-            baseCurrencyCode = baseCurrencyCode,
+            baseCurrency = baseCurrency,
             rates = latestRates.rates.map {
                 Rate(
-                    currencyCode = it.key,
+                    currency = Currency(
+                        code = it.key,
+                        name = currencyCodes.find { currency ->
+                            currency.code == it.key
+                        }?.name ?: throw CurrencyNotFoundException(it.key)
+                    ),
                     exchangeRate = it.value,
                 )
             }

@@ -5,6 +5,8 @@ import com.jaaliska.exchangerates.app.persistence.ExchangeRatesDatabase
 import com.jaaliska.exchangerates.data.rates.model.db.RoomExchangeRateBaseCurrency
 import com.jaaliska.exchangerates.data.rates.model.db.RoomExchangeRates
 import com.jaaliska.exchangerates.domain.RatesNotFoundException
+import com.jaaliska.exchangerates.domain.CurrencyNotFoundException
+import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.model.Rate
 import kotlinx.coroutines.flow.Flow
@@ -26,19 +28,26 @@ class RoomRatesRepository(private val db: ExchangeRatesDatabase) {
 
     suspend fun getRates(
         baseCurrencyCode: String,
-        currencyCodes: List<String>
+        currencies: List<Currency>
     ): ExchangeRates {
         val updateDate =
             db.exchangeRateBaseCurrencyDao().getByCurrencyCode(baseCurrencyCode)?.updateDate
                 ?: throw RatesNotFoundException(baseCurrencyCode)
 
-        val result = db.exchangesRatesDao().getByBaseCode(baseCurrencyCode, currencyCodes)
+        val result =
+            db.exchangesRatesDao().getByBaseCode(baseCurrencyCode, currencies.map { it.code })
         return ExchangeRates(
             date = updateDate,
-            baseCurrencyCode = baseCurrencyCode,
+            baseCurrency = Currency(
+                code = baseCurrencyCode,
+                name = currencies.find { it.code == baseCurrencyCode }?.name
+                    ?: throw CurrencyNotFoundException(baseCurrencyCode)
+            ),
             rates = result.map {
                 Rate(
-                    currencyCode = it.currencyCode,
+                    currency = currencies.find { currency ->
+                        currency.code == it.currencyCode
+                    } ?: throw CurrencyNotFoundException(it.currencyCode),
                     exchangeRate = it.rate
                 )
             }
@@ -56,15 +65,15 @@ class RoomRatesRepository(private val db: ExchangeRatesDatabase) {
         db.withTransaction {
             db.exchangeRateBaseCurrencyDao().insert(
                 RoomExchangeRateBaseCurrency(
-                    currencyCode = exchangeRates.baseCurrencyCode,
+                    currencyCode = exchangeRates.baseCurrency.code,
                     updateDate = exchangeRates.date
                 )
             )
 
             db.exchangesRatesDao().insert(exchangeRates.rates.map {
                 RoomExchangeRates(
-                    baseCurrencyCode = exchangeRates.baseCurrencyCode,
-                    currencyCode = it.currencyCode,
+                    baseCurrencyCode = exchangeRates.baseCurrency.code,
+                    currencyCode = it.currency.code,
                     rate = it.exchangeRate
                 )
             })

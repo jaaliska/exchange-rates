@@ -6,17 +6,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.presentation.ui.currencyChoice.BaseCurrencyChoiceDialogViewModel.SelectableItem
 import kotlinx.android.synthetic.main.currency_choice_item.view.*
 
 class CurrencyChoiceAdapter(
     private val onItemClick: (currencyCode: String, isCheck: Boolean) -> Unit
-) : ListAdapter<BaseCurrencyChoiceDialogViewModel.SelectableItem, CurrencyChoiceAdapter.CheckableViewHolder>(
-    BaseCurrencyChoiceDialogViewModel.SelectableItem.diffCallback
+) : ListAdapter<SelectableItem, CurrencyChoiceAdapter.CheckableViewHolder>(
+    SelectableItem.diffCallback
 ) {
 
     class CheckableViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(
-            items: BaseCurrencyChoiceDialogViewModel.SelectableItem,
+            items: SelectableItem,
             onItemClick: (currencyCode: String, isCheck: Boolean) -> Unit
         ) {
             itemView.apply {

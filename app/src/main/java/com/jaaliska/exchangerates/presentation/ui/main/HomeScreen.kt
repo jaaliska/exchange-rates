@@ -24,7 +24,7 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     private val viewModel by viewModel<BaseHomeViewModel>()
     private val mainAdapter by lazy {
         MainAdapter(
-            baseCurrencyAmount = viewModel.baseCurrencyAmount,
+            baseAmount = viewModel.baseCurrencyAmount,
             coroutineScope = lifecycleScope,
             onItemClick = viewModel::onCurrencySelection
         )
@@ -101,7 +101,7 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     private fun setupRecyclerView() {
         ratesContainer.layoutManager = LinearLayoutManager(context)
 
-        viewModel.exchangeRates.observe(viewLifecycleOwner) {
+        viewModel.items.observe(viewLifecycleOwner) {
             mainAdapter.submitList(it)
         }
 

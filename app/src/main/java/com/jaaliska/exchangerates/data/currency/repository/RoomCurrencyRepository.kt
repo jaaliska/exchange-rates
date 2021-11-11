@@ -17,7 +17,7 @@ class RoomCurrencyRepository(
                 RoomCurrency(
                     code = it.code,
                     name = it.name,
-                    isFavorite = favoriteCurrencies.contains(it.code)
+                    isFavorite = favoriteCurrencies.map { it.code }.contains(it.code)
                 )
             }
             db.currencyDao().insert(list)
@@ -38,8 +38,13 @@ class RoomCurrencyRepository(
         }
     }
 
-    suspend fun readFavoriteCurrencies(): List<String> {
-        return db.currencyDao().readFavoriteCurrencyCodes()
+    suspend fun readFavoriteCurrencies(): List<Currency> {
+        return db.currencyDao().readFavoriteCurrencyCodes().map {
+            Currency(
+                code = it.code,
+                name = it.name
+            )
+        }
     }
 
     suspend fun saveFavoriteCurrencies(currencyCodes: List<String>) {

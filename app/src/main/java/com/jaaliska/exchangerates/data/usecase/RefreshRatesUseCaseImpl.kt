@@ -3,6 +3,7 @@ package com.jaaliska.exchangerates.data.usecase
 import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
 import com.jaaliska.exchangerates.data.rates.repository.RetrofitRatesRepository
 import com.jaaliska.exchangerates.data.rates.repository.RoomRatesRepository
+import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
 import com.jaaliska.exchangerates.presentation.service.AlarmService
 import kotlinx.coroutines.*
@@ -19,10 +20,10 @@ class RefreshRatesUseCaseImpl(
         localRatesRepository.deleteAllRates()
         coroutineScope {
             val tasks = mutableListOf<Deferred<Unit>>()
-            for (baseCurrencyCode in favorites) {
-                val codesToLoad = favorites.filter { it != baseCurrencyCode }
+            for (baseCurrency in favorites) {
+                val currencyToLoad = favorites.filter { it.code != baseCurrency.code }
                 tasks.add(async {
-                    updateRatesForBaseCurrency(baseCurrencyCode, codesToLoad)
+                    updateRatesForBaseCurrency(baseCurrency, currencyToLoad)
                 })
             }
             awaitAll(*tasks.toTypedArray())
@@ -31,10 +32,10 @@ class RefreshRatesUseCaseImpl(
     }
 
     private suspend fun updateRatesForBaseCurrency(
-        baseCurrencyCode: String,
-        codesToLoad: List<String>
+        baseCurrency: Currency,
+        currencyToLoad: List<Currency>
     ) {
-        val rates = remoteRatesRepository.getRates(baseCurrencyCode, codesToLoad)
+        val rates = remoteRatesRepository.getRates(baseCurrency, currencyToLoad)
         localRatesRepository.saveRates(rates)
     }
 }

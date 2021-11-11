@@ -3,6 +3,7 @@ package com.jaaliska.exchangerates.data.usecase
 import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
 import com.jaaliska.exchangerates.data.rates.repository.RoomRatesRepository
 import com.jaaliska.exchangerates.domain.RatesNotFoundException
+import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.usecases.GetRatesUseCase
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
@@ -15,9 +16,9 @@ class GetRatesUseCaseImpl(
 
     override suspend operator fun invoke(
         baseCurrencyCode: String,
-        currencyCodes: List<String>?
+        currencies: List<Currency>?
     ): ExchangeRates {
-        val favorites = currencyCodes ?: localCurrencyRepository.readFavoriteCurrencies()
+        val favorites = currencies ?: localCurrencyRepository.readFavoriteCurrencies()
         return try {
             localRatesRepository.getRates(baseCurrencyCode, favorites)
         } catch (ex: RatesNotFoundException) {

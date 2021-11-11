@@ -10,7 +10,7 @@ import java.util.*
 
 abstract class BaseHomeViewModel : ViewModel() {
 
-    abstract val exchangeRates: Flow<List<NamedRate>>
+    abstract val items: Flow<List<Item>>
     abstract val baseCurrencyAmount: MutableStateFlow<Double>
     abstract val baseCurrencyDetails: Flow<Currency?>
     abstract val updateDate: Flow<Date?>
@@ -21,20 +21,20 @@ abstract class BaseHomeViewModel : ViewModel() {
     abstract fun onCurrencySelection(currencyCode: String, amount: Double)
     abstract fun onSwipeToRefresh()
 
-    data class NamedRate(
-        val currencyCode: String,
-        val currencyName: String,
-        val exchangeRate: Double
+    data class Item(
+        val title: String,
+        val subtitle: String,
+        val amount: Double
     ) {
         companion object {
-            val diffCallback = object : DiffUtil.ItemCallback<NamedRate>() {
-                override fun areItemsTheSame(oldItem: NamedRate, newItem: NamedRate): Boolean {
-                    return oldItem.currencyCode == newItem.currencyCode &&
-                            oldItem.currencyName == newItem.currencyName &&
-                            oldItem.exchangeRate == newItem.exchangeRate
+            val diffCallback = object : DiffUtil.ItemCallback<Item>() {
+                override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
+                    return oldItem.title == newItem.title &&
+                            oldItem.subtitle == newItem.subtitle &&
+                            oldItem.amount == newItem.amount
                 }
 
-                override fun areContentsTheSame(oldItem: NamedRate, newItem: NamedRate): Boolean {
+                override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
                     return oldItem == newItem
                 }
             }
