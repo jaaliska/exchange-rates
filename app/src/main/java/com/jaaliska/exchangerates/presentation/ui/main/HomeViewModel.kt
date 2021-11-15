@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.data.rates.repository.BaseCurrencyCode
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
+import com.jaaliska.exchangerates.domain.model.Rate
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
@@ -23,13 +24,17 @@ class HomeViewModel(
     private val getRatesUpdateDates: Flow<Map<BaseCurrencyCode, Date>>
 ) : BaseHomeViewModel() {
 
-    override val items = MutableStateFlow<List<Item>>(listOf())
-    override val baseCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)
-    override val baseCurrencyDetails = MutableStateFlow<Currency?>(null)
+    private var rates = MutableStateFlow(listOf<Rate>())
+    private val anchorCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)
+    override val items = anchorCurrencyAmount.combine(rates) { anchorAmount, rates ->
+        rates.map { rate -> rate.toItem(anchorAmount = anchorAmount) }
+    }
+    override val anchor = MutableStateFlow<Item?>(null)
     override val updateDate = MutableStateFlow<Date?>(null)
     override val isLoading = MutableStateFlow<Boolean>(false)
     override val errors = MutableSharedFlow<Int>(0)
     override val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
+
     private val errorHandler = ErrorHandler()
 
     init {
@@ -62,9 +67,13 @@ class HomeViewModel(
         }
     }
 
-    override fun onCurrencySelection(currencyCode: String, amount: Double) {
-        updateExchangeRates(currencyCode) {
-            baseCurrencyAmount.value = amount
+    override fun onItemSelection(item: Item) {
+        updateExchangeRates(item.title)
+    }
+
+    override fun onAmountChanged(amount: Double) {
+        viewModelScope.launch {
+            anchorCurrencyAmount.emit(amount)
         }
     }
 
@@ -103,17 +112,22 @@ class HomeViewModel(
         }
     }
 
-    private fun applyExchangeRatesToScreen(value: ExchangeRates) {
-        items.value = value.rates.map {
-            Item(
-                title = it.currency.code,
-                subtitle = it.currency.name,
-                amount = it.exchangeRate
-            )
-        }
-        baseCurrencyDetails.value = value.baseCurrency
+    private suspend fun applyExchangeRatesToScreen(value: ExchangeRates) {
+        rates.emit( value.rates)
+        anchor.emit(value.baseCurrency.toItem())
         updateDate.value = value.date
     }
+
+    private fun Rate.toItem(anchorAmount: Double) = Item(
+        title = currency.code,
+        subtitle = currency.name,
+        amount = exchangeRate * anchorAmount
+    )
+    private fun Currency.toItem() = Item(
+        title = code,
+        subtitle = name,
+        amount = anchorCurrencyAmount.value
+    )
 
     companion object {
         private const val DEFAULT_BASE_CURRENCY_AMOUNT = 1.0

@@ -1,12 +1,10 @@
 package com.jaaliska.exchangerates.presentation.ui.main
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
@@ -24,9 +22,7 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     private val viewModel by viewModel<BaseHomeViewModel>()
     private val mainAdapter by lazy {
         MainAdapter(
-            baseAmount = viewModel.baseCurrencyAmount,
-            coroutineScope = lifecycleScope,
-            onItemClick = viewModel::onCurrencySelection
+            onItemClick = viewModel::onItemSelection
         )
     }
 
@@ -36,15 +32,6 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
     }
 
     private fun setupUI() {
-        viewModel.baseCurrencyDetails.observe(viewLifecycleOwner) {
-            if (it != null) {
-                title.text = it.code
-                subtitle.text = it.name
-            }
-        }
-
-        ratesContainer.adapter = mainAdapter
-
         viewModel.updateDate.observe(viewLifecycleOwner) {
             if (it != null) {
                 updateData.text = getString(
@@ -53,7 +40,7 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
                 )
             }
         }
-        setupEditTextProcessing()
+        setupAnchor()
         setupRecyclerView()
 
         swipeRefresh.setOnRefreshListener {
@@ -72,35 +59,29 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
         }
     }
 
-    private fun setupEditTextProcessing() {
-        viewModel.baseCurrencyAmount.observe(viewLifecycleOwner) {
-            val currentDoubleValue = currencyAmount.text.toString().toDoubleOrNull()
-            if (currentDoubleValue != it) {
+    private fun setupAnchor() {
+        val currentDoubleValue = currencyAmount.text.toString().toDoubleOrNull()
+        viewModel.anchor.observe(viewLifecycleOwner) {
+            if (it != null && it.amount != currentDoubleValue) {
+                title.text = it.title
+                subtitle.text = it.subtitle
                 val nf: NumberFormat = NumberFormat.getInstance()
                 nf.maximumFractionDigits = 2
                 nf.isGroupingUsed = false
-                currencyAmount.setText(nf.format(it))
+                currencyAmount.setText(nf.format(it.amount))
             }
         }
 
         currencyAmount.filters = arrayOf(MoneyValueFilter())
-        currencyAmount.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                val doubleValue = s.toString().toDoubleOrNull()
-                if (doubleValue != null && viewModel.baseCurrencyAmount.value != doubleValue) {
-                    viewModel.baseCurrencyAmount.value = doubleValue
-                }
-            }
-        })
+        currencyAmount.doAfterTextChanged {
+            val newAmount = it.toString().toDoubleOrNull()
+            newAmount?.let { viewModel.onAmountChanged(newAmount) }
+        }
     }
 
     private fun setupRecyclerView() {
+        ratesContainer.adapter = mainAdapter
         ratesContainer.layoutManager = LinearLayoutManager(context)
-
         viewModel.items.observe(viewLifecycleOwner) {
             mainAdapter.submitList(it)
         }

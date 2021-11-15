@@ -8,75 +8,39 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.ui.main.BaseHomeViewModel.Item
 import kotlinx.android.synthetic.main.exchange_rates_item.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-
-typealias ItemClickCallback = (tittle: String, resultAmount: Double) -> Unit
 
 class MainAdapter(
-    private val baseAmount: Flow<Double>,
-    private val coroutineScope: CoroutineScope,
-    private val onItemClick: ItemClickCallback
+    private val onItemClick: (item: Item) -> Unit
 ) : ListAdapter<Item, MainAdapter.DataViewHolder>(Item.diffCallback) {
 
-    class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private var job: Job? = null
-        private var item: Item? = null
-        private var baseAmount: Flow<Double>? = null
-        private var coroutineScope: CoroutineScope? = null
-        private var resultAmount: Double? = null
+    class DataViewHolder(
+        itemView: View,
+        private val onItemClick: (item: Item) -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(
-            item: Item,
-            baseCurrencyAmount: Flow<Double>,
-            coroutineScope: CoroutineScope,
-            onItemClick: ItemClickCallback
+            item: Item
         ) {
-            this.coroutineScope = coroutineScope
-            this.baseAmount = baseCurrencyAmount
-            this.item = item
             itemView.apply {
                 title.text = item.title
                 subtitle.text = item.subtitle
-                this.setOnClickListener {
-                    val resAmount = resultAmount
-                    resAmount?.let { onItemClick(item.title, resAmount) }
-                }
+                tvResultAmount.text = String.format(TEXT_VALUE_FORMAT, item.amount)
+                this.setOnClickListener { onItemClick(item) }
             }
         }
 
-        fun onViewAttachedToWindow() {
+        fun bindAmount(amount: Double) {
             itemView.apply {
-                job = coroutineScope?.launch {
-                    baseAmount?.collect {
-                        resultAmount = item?.amount?.times(it)
-                        tvResultAmount.text = String.format("%.2f", resultAmount)
-                    }
-                }
+                tvResultAmount.text = String.format(TEXT_VALUE_FORMAT, amount)
             }
         }
-
-        fun onViewDetachedFromWindow() {
-            job?.cancel()
-        }
-    }
-
-    override fun onViewAttachedToWindow(holder: DataViewHolder) {
-        super.onViewAttachedToWindow(holder)
-        holder.onViewAttachedToWindow()
-    }
-
-    override fun onViewDetachedFromWindow(holder: DataViewHolder) {
-        super.onViewDetachedFromWindow(holder)
-        holder.onViewDetachedFromWindow()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder =
         DataViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.exchange_rates_item, parent, false)
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.exchange_rates_item, parent, false),
+            onItemClick
         )
 
     override fun getItemCount(): Int {
@@ -84,7 +48,20 @@ class MainAdapter(
     }
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) {
-        holder.bind(currentList[position], baseAmount, coroutineScope, onItemClick)
+        holder.bind(currentList[position])
     }
 
+    override fun onBindViewHolder(holder: DataViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            if (payloads[0] == true) {
+                holder.bindAmount(getItem(position).amount)
+            }
+        }
+    }
+
+    companion object {
+        private const val TEXT_VALUE_FORMAT = "%.2f"
+    }
 }
