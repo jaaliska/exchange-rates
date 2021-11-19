@@ -7,10 +7,14 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.observe
 import kotlinx.android.synthetic.main.dialog_currency_choice.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import org.koin.androidx.scope.scopeActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CurrencyChoiceDialog : DialogFragment() {
@@ -58,10 +62,16 @@ class CurrencyChoiceDialog : DialogFragment() {
             Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
         }
         buttonOk.setOnClickListener {
-            viewModel.onOkClick { dismiss() }
+            lifecycleScope.launch {
+                viewModel.onOkClick()
+                dismiss()
+            }
         }
         buttonCancel.setOnClickListener {
-            viewModel.onCancelClick { dismiss() }
+            lifecycleScope.launch {
+                viewModel.onCancelClick()
+                dismiss()
+            }
         }
     }
 }

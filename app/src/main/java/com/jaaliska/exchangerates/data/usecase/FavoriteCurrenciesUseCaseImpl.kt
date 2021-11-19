@@ -1,5 +1,6 @@
 package com.jaaliska.exchangerates.data.usecase
 
+import android.util.Log
 import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
@@ -11,7 +12,6 @@ class FavoriteCurrenciesUseCaseImpl(
     private val refreshRatesUseCase: RefreshRatesUseCase,
     private val preferencesRepository: PreferencesRepository
 ) : FavoriteCurrenciesUseCase {
-
     override suspend fun set(codes: List<String>) {
         localCurrencyRepository.saveFavoriteCurrencies(codes)
         val baseCurrencyCode = preferencesRepository.getBaseCurrencyCode()

@@ -18,20 +18,20 @@ class CurrencyChoiceDialogViewModel(
     override val errors = MutableSharedFlow<Int>(0)
     override val isLoading = MutableStateFlow<Boolean>(true)
     private val errorHandler = ErrorHandler()
-    private lateinit var startedFavoritesCodes: List<String>
+    private lateinit var initialFavoritesCodes: List<String>
     private lateinit var modifiedFavoritesCodes: MutableList<String>
 
     init {
         viewModelScope.launch {
             try {
                 val supportedCurrencies = getSupportedCurrenciesUseCase(true)
-                startedFavoritesCodes = favoriteCurrenciesUseCase.get().map { it.code }
-                modifiedFavoritesCodes = mutableListOf(*startedFavoritesCodes.toTypedArray())
+                initialFavoritesCodes = favoriteCurrenciesUseCase.get().map { it.code }
+                modifiedFavoritesCodes = mutableListOf(*initialFavoritesCodes.toTypedArray())
                 items.emit(supportedCurrencies.map {
                     SelectableItem(
                         subtitle = it.name,
                         title = it.code,
-                        isSelected = startedFavoritesCodes.contains(it.code)
+                        isSelected = initialFavoritesCodes.contains(it.code)
                     )
                 })
             } catch (ex: Exception) {
@@ -50,11 +50,12 @@ class CurrencyChoiceDialogViewModel(
         }
     }
 
-    override fun onOkClick(doOnFinish: () -> Unit) {
+    override fun onOkClick() {
         viewModelScope.launch {
             isLoading.emit(true)
-            if (startedFavoritesCodes == modifiedFavoritesCodes) {
-                doOnFinish()
+            if (initialFavoritesCodes == modifiedFavoritesCodes) {
+                return@launch
+               // doOnFinish()
             }
             if (modifiedFavoritesCodes.size > 1) {
                 try {
@@ -62,7 +63,7 @@ class CurrencyChoiceDialogViewModel(
                 } catch (ex: java.lang.Exception) {
                     errors.emit(errorHandler.map(ex))
                 }
-                doOnFinish()
+                //doOnFinish()
             } else {
                 errors.emit(R.string.not_enough_changed_currency)
             }
@@ -70,11 +71,11 @@ class CurrencyChoiceDialogViewModel(
         }
     }
 
-    override fun onCancelClick(doOnFinish: () -> Unit) {
+    override fun onCancelClick() {
         viewModelScope.launch {
             isLoading.emit(true)
             if (modifiedFavoritesCodes.size > 1) {
-                doOnFinish()
+                return@launch
             } else {
                 errors.emit(R.string.not_enough_changed_currency)
             }
