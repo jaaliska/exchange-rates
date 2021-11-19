@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice
+package com.jaaliska.exchangerates.presentation.ui.screens.currency_choice
 
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
@@ -32,15 +32,18 @@ class CurrencyChoiceDialogViewModel(
 
     override fun onItemClick(item: CheckableItem, isChecked: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
+            isLoading.value = true
             updateCurrencyFavoriteStateUseCase(currency = item.toCurrency(), isFavorite = isChecked)
+            isLoading.value = false
         }
     }
 
-
-    private fun CheckableItem.toCurrency() = Currency(code = title, name = subtitle)
-    private fun Currency.toCheckableItem(isChecked: Boolean) = CheckableItem(
-        title = code,
-        subtitle = name,
-        isChecked = isChecked
-    )
+    companion object {
+        internal fun CheckableItem.toCurrency() = Currency(code = title, name = subtitle)
+        internal fun Currency.toCheckableItem(isChecked: Boolean) = CheckableItem(
+            title = code,
+            subtitle = name,
+            isChecked = isChecked
+        )
+    }
 }

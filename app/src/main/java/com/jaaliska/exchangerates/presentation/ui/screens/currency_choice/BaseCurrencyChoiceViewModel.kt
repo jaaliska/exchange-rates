@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice
+package com.jaaliska.exchangerates.presentation.ui.screens.currency_choice
 
 import androidx.lifecycle.ViewModel
 import com.jaaliska.exchangerates.presentation.ui.common.list.checkable_item.CheckableItem

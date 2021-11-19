@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.screens.currencyChoice
+package com.jaaliska.exchangerates.presentation.ui.screens.currency_choice
 
 import android.os.Bundle
 import android.view.LayoutInflater

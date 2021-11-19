@@ -1,5 +1,7 @@
 package com.jaaliska.exchangerates.app.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.jaaliska.exchangerates.data.anchor_currency.SharedPrefAnchorCurrencyRepository
 import com.jaaliska.exchangerates.data.currency.MediatorCurrenciesDataSource
 import com.jaaliska.exchangerates.data.rates_snapshot.MediatorRatesDataSource
@@ -10,8 +12,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.scope.Scope
 import org.koin.core.scope.ScopeCallback
+import org.koin.dsl.binds
 import org.koin.dsl.module
 
 
@@ -19,9 +23,9 @@ import org.koin.dsl.module
 @ExperimentalCoroutinesApi
 internal val dataSources = module {
 
-    factory<AnchorCurrencyDataSource> {
-        SharedPrefAnchorCurrencyRepository(sharedPref = get())
-    }
+    factory {
+        SharedPrefAnchorCurrencyRepository(sharedPref = getSharedPrefs(context = androidContext()))
+    }.binds(arrayOf(AnchorCurrencyDataSource::class, SharedPrefAnchorCurrencyRepository::class))
 
     factory<CurrenciesDataSource> {
         MediatorCurrenciesDataSource(
@@ -49,4 +53,8 @@ internal val dataSources = module {
             coroutineScope = coroutineScope
         )
     }
+}
+
+fun getSharedPrefs(context: Context): SharedPreferences {
+    return context.getSharedPreferences("default", Context.MODE_PRIVATE)
 }

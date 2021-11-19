@@ -2,19 +2,30 @@ package com.jaaliska.exchangerates.app.di
 
 import com.google.gson.GsonBuilder
 import com.jaaliska.exchangerates.BuildConfig
+import com.jaaliska.exchangerates.data.currency.api.CurrencyAPI
+import com.jaaliska.exchangerates.data.rates_snapshot.api.RatesAPI
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
-import org.koin.core.module.Module
+import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 
-internal val provideRetrofits: Module.() -> Unit = {
+val network = module {
     single<OkHttpClient> { provideOkHttpClient() }
     single<Retrofit> { provideRetrofit(client = get(), baseUrl = BuildConfig.SERVER_URL) }
+    single { ratesAPI(get()) }
+    single { currencyAPI(get()) }
 }
+
+private fun ratesAPI(retrofit: Retrofit): RatesAPI =
+    retrofit.create(RatesAPI::class.java)
+
+private fun currencyAPI(retrofit: Retrofit): CurrencyAPI =
+    retrofit.create(CurrencyAPI::class.java)
+
 
 private const val TIMEOUT = 100L
 private fun provideOkHttpClient(): OkHttpClient {
