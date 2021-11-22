@@ -1,28 +1,16 @@
 package com.jaaliska.exchangerates.core
 
-import kotlinx.coroutines.Dispatchers
+import com.jaaliska.exchangerates.core.rules.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.setMain
-import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.koin.test.KoinTest
-import org.koin.test.mock.MockProviderRule
-import org.mockito.Mockito
 
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
-open class BaseUnitTest : KoinTest {
+open class BaseUnitTest {
 
+    @ExperimentalCoroutinesApi
     @get:Rule
-    val mockProvider = MockProviderRule.create { clazz ->
-        Mockito.mock(clazz.java)
-    }
-
-    @Before
-    fun setup() {
-        Dispatchers.setMain(TestCoroutineDispatcher())
-    }
+    var mainCoroutineRule = MainCoroutineRule()
 }

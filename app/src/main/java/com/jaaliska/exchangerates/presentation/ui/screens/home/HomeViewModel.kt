@@ -9,7 +9,6 @@ import com.jaaliska.exchangerates.domain.model.NetworkError
 import com.jaaliska.exchangerates.domain.model.RatesSnapshot
 import com.jaaliska.exchangerates.domain.usecase.SetAnchorCurrencyUseCase
 import com.jaaliska.exchangerates.presentation.ui.common.list.item.Item
-import com.jaaliska.exchangerates.presentation.utils.doOnError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -36,13 +35,13 @@ class HomeViewModel(
 
     init {
         ratesDataSource.observe()
-            .doOnError {
+            .catch {
                 val messageRes: Int = when (it) {
                     is NetworkError -> R.string.network_error
                     is GenericError -> R.string.something_went_wrong
                     else -> R.string.something_went_wrong
                 }
-                error.emit(messageRes)
+                viewModelScope.launch { error.emit(messageRes) }
             }
             .onEach(::emitRatesSnapshot)
             .flowOn(Dispatchers.IO)

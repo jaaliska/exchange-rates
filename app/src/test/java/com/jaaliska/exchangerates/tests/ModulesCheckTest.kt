@@ -27,7 +27,6 @@ class ModulesCheckTest : AutoCloseKoinTest() {
 
     @get:Rule
     val mockProvider = MockProviderRule.create { clazz ->
-        // Setup your nock framework
         Mockito.mock(clazz.java)
     }
 

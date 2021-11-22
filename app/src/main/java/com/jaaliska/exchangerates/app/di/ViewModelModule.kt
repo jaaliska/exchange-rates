@@ -3,6 +3,7 @@ package com.jaaliska.exchangerates.app.di
 import com.jaaliska.exchangerates.presentation.ui.screens.currency_choice.BaseCurrencyChoiceViewModel
 import com.jaaliska.exchangerates.presentation.ui.screens.currency_choice.CurrencyChoiceDialogViewModel
 import com.jaaliska.exchangerates.presentation.ui.screens.home.HomeViewModel
+import kotlinx.coroutines.Dispatchers
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -16,7 +17,8 @@ internal val viewModels = module {
     viewModel<BaseCurrencyChoiceViewModel> {
         CurrencyChoiceDialogViewModel(
             currenciesDataSource = get(),
-            updateCurrencyFavoriteStateUseCase = get()
+            updateCurrencyFavoriteStateUseCase = get(),
+            ioDispatcher = Dispatchers.IO
         )
     }
 }
