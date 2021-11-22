@@ -12,6 +12,7 @@ import com.jaaliska.exchangerates.domain.model.Rate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.*
+import kotlin.jvm.Throws
 
 typealias BaseCurrencyCode = String
 
@@ -26,6 +27,7 @@ class RoomRatesRepository(private val db: ExchangeRatesDatabase) {
             }
     }
 
+    @Throws(RatesNotFoundException::class)
     suspend fun getRates(
         baseCurrencyCode: String,
         currencies: List<Currency>

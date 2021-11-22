@@ -61,7 +61,7 @@ class CurrencyChoiceDialog : DialogFragment() {
             viewModel.onOkClick { dismiss() }
         }
         buttonCancel.setOnClickListener {
-            viewModel.onCancelClick { dismiss() }
+            dismiss()
         }
     }
 }

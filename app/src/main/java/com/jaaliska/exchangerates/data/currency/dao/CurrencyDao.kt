@@ -10,7 +10,7 @@ interface CurrencyDao {
     suspend fun insert(value: List<RoomCurrency>)
 
     @Query("UPDATE currency SET isFavorite = code IN (:codes)")
-    suspend fun setIsFavorite(codes: List<String>)
+    suspend fun setIsFavorite(codes: Set<String>)
 
     @Query("DELETE FROM currency")
     suspend fun deleteAll()

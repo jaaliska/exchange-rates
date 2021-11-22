@@ -12,7 +12,7 @@ class FavoriteCurrenciesUseCaseImpl(
     private val preferencesRepository: PreferencesRepository
 ) : FavoriteCurrenciesUseCase {
 
-    override suspend fun set(codes: List<String>) {
+    override suspend fun set(codes: Set<String>) {
         localCurrencyRepository.saveFavoriteCurrencies(codes)
         val baseCurrencyCode = preferencesRepository.getBaseCurrencyCode()
         if (!codes.contains(baseCurrencyCode)) {
