@@ -3,8 +3,8 @@ package com.jaaliska.exchangerates.app.persistence
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.jaaliska.exchangerates.data.currency.dao.CurrencyDao
-import com.jaaliska.exchangerates.data.currency.dao.RoomCurrency
+import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.CurrencyDao
+import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.RoomCurrency
 import com.jaaliska.exchangerates.data.rates_snapshot.dao.RatesSnapshotDao
 import com.jaaliska.exchangerates.data.rates_snapshot.dao.model.rate.RoomRate
 import com.jaaliska.exchangerates.data.rates_snapshot.dao.model.snapshot.RoomRatesSnapshot

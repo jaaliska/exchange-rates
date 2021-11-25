@@ -2,7 +2,7 @@ package com.jaaliska.exchangerates.data.rates_snapshot
 
 import com.jaaliska.exchangerates.data.anchor_currency.SharedPrefAnchorCurrencyRepository
 import com.jaaliska.exchangerates.data.core.registerHooks
-import com.jaaliska.exchangerates.data.currency.dao.RoomCurrencyRepository
+import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.RoomCurrencyRepository
 import com.jaaliska.exchangerates.data.rates_snapshot.api.RetrofitRatesSnapshotRepository
 import com.jaaliska.exchangerates.data.rates_snapshot.dao.RoomRatesSnapshotRepository
 import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
@@ -62,10 +62,12 @@ class MediatorRatesDataSource(
         val ratesToLoad = favorites.toMutableList().apply { remove(anchorCurrency) }
         if (ratesToLoad.isEmpty()) return
 
-        localRatesRepository.delete(baseCurrency = anchorCurrency)
-
         val rates = remoteRatesRepository.getRates(anchorCurrency, ratesToLoad)
-        localRatesRepository.save(rates)
+
+        with(localRatesRepository) {
+            delete(baseCurrency = anchorCurrency)
+            save(rates)
+        }
 
         alarmService.startAlarm()
     }

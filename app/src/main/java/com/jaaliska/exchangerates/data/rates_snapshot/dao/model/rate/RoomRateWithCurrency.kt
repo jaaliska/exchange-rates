@@ -2,7 +2,7 @@ package com.jaaliska.exchangerates.data.rates_snapshot.dao.model.rate
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.jaaliska.exchangerates.data.currency.dao.RoomCurrency
+import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.RoomCurrency
 import com.jaaliska.exchangerates.domain.model.RatesSnapshot
 
 data class RoomRateWithCurrency(

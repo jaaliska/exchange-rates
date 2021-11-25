@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import com.jaaliska.exchangerates.R
 
+// fast adapter
 class CheckableItemAdapter(
     private val onItemClick: (item: CheckableItem, isCheck: Boolean) -> Unit
 ) : ListAdapter<CheckableItem, CheckableItemViewHolder>(

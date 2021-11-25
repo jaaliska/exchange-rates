@@ -22,13 +22,13 @@ class CurrencyChoiceDialogViewModel(
 
     init {
         currenciesDataSource.observeFavorites()
-            .zip(currenciesDataSource.observeAll()) { favorites, currencies ->
+            .combine(currenciesDataSource.observeAll()) { favorites, currencies ->
                 currencies.map { currency ->
                     val isChecked = favorites.any { it.code == currency.code }
                     currency.toCheckableItem(isChecked)
                 }
             }
-            .onEach(items::emit)
+            .onEach { items.emit(it) }
             .flowOn(ioDispatcher)
             .catch { error.emit(R.string.something_went_wrong) }
             .launchIn(viewModelScope)

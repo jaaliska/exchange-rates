@@ -1,6 +1,6 @@
 package com.jaaliska.exchangerates.data.usecase
 
-import com.jaaliska.exchangerates.data.currency.dao.RoomCurrencyRepository
+import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.RoomCurrencyRepository
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.usecase.UpdateCurrencyFavoriteStateUseCase
 

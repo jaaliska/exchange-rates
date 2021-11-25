@@ -8,8 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 class SetAnchorCurrencyUseCaseImpl(
     private val anchorCurrencyRepository: SharedPrefAnchorCurrencyRepository
-) :
-    SetAnchorCurrencyUseCase {
+) : SetAnchorCurrencyUseCase {
 
     override suspend fun invoke(currency: Currency) {
         anchorCurrencyRepository.update(code = currency.code)

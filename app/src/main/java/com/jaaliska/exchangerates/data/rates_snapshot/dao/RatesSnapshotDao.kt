@@ -22,7 +22,6 @@ abstract class RatesSnapshotDao {
     @Query("SELECT * FROM rates_snapshot WHERE base_currency_code = :baseCurrencyCode")
     abstract fun read(baseCurrencyCode: String): Flow<RoomRatesSnapshotWithRates?>
 
-
     @Transaction
     open suspend fun insert(snapshot: RoomRatesSnapshotWithRates) {
         insert(snapshot.ratesSnapshot)
