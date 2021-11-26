@@ -3,12 +3,9 @@ package com.jaaliska.exchangerates.app.di
 import com.jaaliska.exchangerates.app.persistence.ExchangeRatesDatabase
 import com.jaaliska.exchangerates.data.currency.MediatorCurrenciesDataSource
 import com.jaaliska.exchangerates.data.currency.api.RetrofitCurrencyRepository
-import com.jaaliska.exchangerates.data.currency.persistence.LocalRepository
-import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.CurrencyDao
-import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.RoomCurrencyRepository
+import com.jaaliska.exchangerates.data.currency.persistence.CurrencyDao
 import com.jaaliska.exchangerates.data.rates_snapshot.api.RetrofitRatesSnapshotRepository
 import com.jaaliska.exchangerates.data.rates_snapshot.dao.RatesSnapshotDao
-import com.jaaliska.exchangerates.data.rates_snapshot.dao.RoomRatesSnapshotRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.dsl.module
 
@@ -18,8 +15,6 @@ internal val repositoryModule = module {
     single<CurrencyDao> { get<ExchangeRatesDatabase>().currencyDao() }
 
     single { RetrofitRatesSnapshotRepository(api = get()) }
-    single { RoomRatesSnapshotRepository(ratesSnapshotDao = get()) }
     single { RetrofitCurrencyRepository(api = get()) }
-    single<LocalRepository> { RoomCurrencyRepository(db = get()) }
-    single { MediatorCurrenciesDataSource(remoteRepository = get(), localRepository = get()) }
+    single { MediatorCurrenciesDataSource(remoteRepository = get(), dao = get()) }
 }

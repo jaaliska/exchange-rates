@@ -16,10 +16,6 @@ class CurrencyChoiceDialogViewModel(
     private val ioDispatcher: CoroutineDispatcher
 ) : BaseCurrencyChoiceViewModel() {
 
-    override val items = MutableStateFlow<List<CheckableItem>>(listOf())
-    override val error = MutableStateFlow<Int?>(null)
-    override val isLoading = MutableStateFlow(false)
-
     init {
         currenciesDataSource.observeFavorites()
             .combine(currenciesDataSource.observeAll()) { favorites, currencies ->
@@ -28,17 +24,17 @@ class CurrencyChoiceDialogViewModel(
                     currency.toCheckableItem(isChecked)
                 }
             }
-            .onEach { items.emit(it) }
+            .onEach(::submitItems)
             .flowOn(ioDispatcher)
-            .catch { error.emit(R.string.something_went_wrong) }
+            .catch { submitError(R.string.something_went_wrong) }
             .launchIn(viewModelScope)
     }
 
     override fun onItemClick(item: CheckableItem, isChecked: Boolean) {
         viewModelScope.launch(ioDispatcher) {
-            isLoading.emit(true)
+            submitLoading(true)
             updateCurrencyFavoriteStateUseCase(currency = item.toCurrency(), isFavorite = isChecked)
-            isLoading.emit(false)
+            submitLoading(false)
         }
     }
 

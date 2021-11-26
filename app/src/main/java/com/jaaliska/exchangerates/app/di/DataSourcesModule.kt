@@ -30,7 +30,7 @@ internal val dataSources = module {
     factory<CurrenciesDataSource> {
         MediatorCurrenciesDataSource(
             remoteRepository = get(),
-            localRepository = get()
+            dao = get()
         )
     }
 
@@ -45,9 +45,9 @@ internal val dataSources = module {
         })
 
         MediatorRatesDataSource(
-            localRatesRepository = get(),
+            currencyDao = get(),
             remoteRatesRepository = get(),
-            localCurrencyRepository = get(),
+            ratesSnapshotDao = get(),
             anchorCurrencyRepository = get(),
             alarmService = get(),
             coroutineScope = coroutineScope

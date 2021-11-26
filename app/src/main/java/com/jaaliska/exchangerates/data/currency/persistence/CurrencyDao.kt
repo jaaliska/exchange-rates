@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.data.currency.persistence.sql.dao
+package com.jaaliska.exchangerates.data.currency.persistence
 
 import androidx.room.Dao
 import androidx.room.Insert

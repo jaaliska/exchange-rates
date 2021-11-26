@@ -7,6 +7,7 @@ import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.usecase.UpdateCurrencyFavoriteStateUseCase
 import com.jaaliska.exchangerates.presentation.ui.common.list.checkable_item.CheckableItem
+import com.jaaliska.exchangerates.presentation.ui.screens.currency_choice.BaseCurrencyChoiceViewModel
 import com.jaaliska.exchangerates.presentation.ui.screens.currency_choice.CurrencyChoiceDialogViewModel
 import com.jaaliska.exchangerates.presentation.ui.screens.currency_choice.CurrencyChoiceDialogViewModel.Companion.toCheckableItem
 import com.nhaarman.mockitokotlin2.mock
@@ -27,16 +28,21 @@ class CurrencyChoiceViewModelUnitTest : BaseUnitTest(TestCoroutineDispatcher()) 
 
     @Test
     fun `test initial success load`() = runBlockingTest {
+        // Given
         val allCurrencies = listOf(
             Currency(name = "1", code = "1"),
             Currency(name = "2", code = "2")
         )
         val favoriteCurrencies = listOf(Currency(name = "1", code = "1"))
 
-        val expectedItems = allCurrencies.map { currency ->
-            currency.toCheckableItem(
-                isChecked = favoriteCurrencies.any { it.code == currency.code })
-        }
+        val expectedState = BaseCurrencyChoiceViewModel.State(
+            items = allCurrencies.map { currency ->
+                currency.toCheckableItem(
+                    isChecked = favoriteCurrencies.any { it.code == currency.code })
+            },
+            isLoading = false,
+            error = null
+        )
 
         val allCurrenciesFlow = flowOf(allCurrencies)
         val favoriteCurrenciesFlow = flowOf(favoriteCurrencies)
@@ -48,20 +54,23 @@ class CurrencyChoiceViewModelUnitTest : BaseUnitTest(TestCoroutineDispatcher()) 
             on { observeFavorites() }.then { favoriteCurrenciesFlow }
         }
 
+        // When
         val viewModel = CurrencyChoiceDialogViewModel(
             currenciesDataSource = dataSource,
             updateCurrencyFavoriteStateUseCase = useCase,
             ioDispatcher = dispatcher
         )
 
-        viewModel.items.test {
-            assertEquals(expectedItems, awaitItem())
+        // Then
+        viewModel.state.test {
+            assertEquals(expectedState, awaitItem())
             expectNoEvents()
         }
     }
 
     @Test
     fun `test initial failure load`() = runBlockingTest {
+        // Given
         val useCase = mock<UpdateCurrencyFavoriteStateUseCase>()
 
         val dataSource = mock<CurrenciesDataSource> {
@@ -69,25 +78,29 @@ class CurrencyChoiceViewModelUnitTest : BaseUnitTest(TestCoroutineDispatcher()) 
             on { observeFavorites() }.then { flow<List<Currency>> { throw RuntimeException() } }
         }
 
+        val expectedState = BaseCurrencyChoiceViewModel.State(
+            items = listOf(),
+            isLoading = false,
+            error = R.string.something_went_wrong
+        )
+
+        // When
         val viewModel = CurrencyChoiceDialogViewModel(
             currenciesDataSource = dataSource,
             updateCurrencyFavoriteStateUseCase = useCase,
             ioDispatcher = dispatcher
         )
 
-        viewModel.items.test {
-            assertEquals(awaitItem(), listOf<CheckableItem>())
-            expectNoEvents()
-        }
-
-        viewModel.error.test {
-            assertEquals(awaitItem(), R.string.something_went_wrong)
+        // Then
+        viewModel.state.test {
+            assertEquals(awaitItem(), expectedState)
             expectNoEvents()
         }
     }
 
     @Test
     fun `show loading when item selected or deselected`() = runBlockingTest {
+        // Given
         val initialItem = CheckableItem("1", "2", isChecked = true)
 
         val useCase = mock<UpdateCurrencyFavoriteStateUseCase>()
@@ -100,12 +113,14 @@ class CurrencyChoiceViewModelUnitTest : BaseUnitTest(TestCoroutineDispatcher()) 
             ioDispatcher = dispatcher
         )
 
-        viewModel.isLoading.test {
+        viewModel.state.test {
+            // When
             viewModel.onItemClick(initialItem, true)
 
-            assertEquals(false, awaitItem())
-            assertEquals(true, awaitItem())
-            assertEquals(false, awaitItem())
+            // Then
+            assertEquals(false, awaitItem().isLoading)
+            assertEquals(true, awaitItem().isLoading)
+            assertEquals(false, awaitItem().isLoading)
 
             expectNoEvents()
         }
@@ -113,7 +128,7 @@ class CurrencyChoiceViewModelUnitTest : BaseUnitTest(TestCoroutineDispatcher()) 
 
     @Test
     fun `deselect currency should update items`() = runBlockingTest {
-        // Arrange
+        // Given
         val allCurrencies = listOf(
             Currency(name = "1", code = "1"),
             Currency(name = "2", code = "2")
@@ -140,18 +155,18 @@ class CurrencyChoiceViewModelUnitTest : BaseUnitTest(TestCoroutineDispatcher()) 
             ioDispatcher = Dispatchers.Unconfined
         )
 
-        val expectedInitialItems =
-            allCurrencies.map { currency -> currency.toCheckableItem(favoriteCurrencies.any { it.code == currency.code }) }
+        val expectedState = BaseCurrencyChoiceViewModel.State(
+            items = allCurrencies.map { it.toCheckableItem(false) },
+            isLoading = false,
+            error = null
+        )
 
-        val expectedUpdatedItems = allCurrencies.map { it.toCheckableItem(false) }
+        // When
+        viewModel.onItemClick(allCurrencies.first().toCheckableItem(true), false)
 
-        viewModel.items.test {
-            // Assert
-            assertEquals(expectedInitialItems, awaitItem())
-            // Act
-            viewModel.onItemClick(allCurrencies.first().toCheckableItem(true), false)
-            // Assert
-            assertEquals(expectedUpdatedItems, awaitItem())
+        viewModel.state.test {
+            // Then
+            assertEquals(expectedState, awaitItem())
             expectNoEvents()
         }
     }

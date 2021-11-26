@@ -2,9 +2,10 @@ package com.jaaliska.exchangerates.data.rates_snapshot
 
 import com.jaaliska.exchangerates.data.anchor_currency.SharedPrefAnchorCurrencyRepository
 import com.jaaliska.exchangerates.data.core.registerHooks
-import com.jaaliska.exchangerates.data.currency.persistence.sql.dao.RoomCurrencyRepository
+import com.jaaliska.exchangerates.data.currency.persistence.CurrencyDao
 import com.jaaliska.exchangerates.data.rates_snapshot.api.RetrofitRatesSnapshotRepository
-import com.jaaliska.exchangerates.data.rates_snapshot.dao.RoomRatesSnapshotRepository
+import com.jaaliska.exchangerates.data.rates_snapshot.dao.RatesSnapshotDao
+import com.jaaliska.exchangerates.data.rates_snapshot.dao.model.snapshot.RoomRatesSnapshotWithRates
 import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
 import com.jaaliska.exchangerates.domain.model.RatesSnapshot
 import com.jaaliska.exchangerates.presentation.service.AlarmService
@@ -17,9 +18,9 @@ import java.util.*
 @DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
 class MediatorRatesDataSource(
-    private val localRatesRepository: RoomRatesSnapshotRepository,
+    private val ratesSnapshotDao: RatesSnapshotDao,
     private val remoteRatesRepository: RetrofitRatesSnapshotRepository,
-    private val localCurrencyRepository: RoomCurrencyRepository,
+    private val currencyDao: CurrencyDao,
     private val anchorCurrencyRepository: SharedPrefAnchorCurrencyRepository,
     private val alarmService: AlarmService,
     coroutineScope: CoroutineScope
@@ -28,7 +29,7 @@ class MediatorRatesDataSource(
     init {
         with(coroutineScope) {
             registerHooks(
-                localCurrencyRepository.readFavoriteCurrencies(),
+                currencyDao.readFavorites(),
                 action = ::refresh
             )
         }
@@ -36,8 +37,8 @@ class MediatorRatesDataSource(
 
     override fun observe(): Flow<RatesSnapshot?> {
         return anchorCurrencyRepository.observe().flatMapLatest { anchorCurrencyCode ->
-            localCurrencyRepository.readFavoriteCurrencies().flatMapLatest {
-                val favorites = it.toMutableList()
+            currencyDao.readFavorites().flatMapLatest { roomCurrencies ->
+                val favorites = roomCurrencies.toMutableList()
                 val anchorCurrency = favorites.find { it.code == anchorCurrencyCode }
                     ?: favorites.firstOrNull()
                     ?: run {
@@ -45,28 +46,31 @@ class MediatorRatesDataSource(
                         return@flatMapLatest observe()
                     }
 
-                val localRates = localRatesRepository.read(baseCurrency = anchorCurrency).first()
-                if (localRates == null) refresh()
+                val localRates = ratesSnapshotDao.read(baseCurrencyCode = anchorCurrency.code)
+                    .map { roomRates -> roomRates?.toDomain() }
 
-                localRatesRepository.read(baseCurrency = anchorCurrency)
+                if (localRates.first() == null) refresh()
+
+                localRates
             }
         }
     }
 
     override suspend fun refresh() {
         val anchorCurrencyCode = anchorCurrencyRepository.observe().first()
-        val favorites = localCurrencyRepository.readFavoriteCurrencies().first()
+        val favorites = currencyDao.readFavorites().first()
 
         val anchorCurrency =
             favorites.find { it.code == anchorCurrencyCode } ?: favorites.firstOrNull() ?: return
-        val ratesToLoad = favorites.toMutableList().apply { remove(anchorCurrency) }
+        val ratesToLoad =
+            favorites.toMutableList().apply { remove(anchorCurrency) }.map { it.toDomain() }
         if (ratesToLoad.isEmpty()) return
 
-        val rates = remoteRatesRepository.getRates(anchorCurrency, ratesToLoad)
+        val rates = remoteRatesRepository.getRates(anchorCurrency.toDomain(), ratesToLoad)
 
-        with(localRatesRepository) {
-            delete(baseCurrency = anchorCurrency)
-            save(rates)
+        with(ratesSnapshotDao) {
+            delete(baseCurrencyCode = anchorCurrency.code)
+            insert(RoomRatesSnapshotWithRates(rates))
         }
 
         alarmService.startAlarm()

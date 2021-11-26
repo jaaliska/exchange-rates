@@ -1,31 +1,28 @@
 package com.jaaliska.exchangerates.data.currency
 
 import com.jaaliska.exchangerates.data.currency.api.RetrofitCurrencyRepository
-import com.jaaliska.exchangerates.data.currency.persistence.LocalRepository
+import com.jaaliska.exchangerates.data.currency.persistence.CurrencyDao
+import com.jaaliska.exchangerates.data.currency.persistence.RoomCurrency
 import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
-import com.jaaliska.exchangerates.domain.model.Currency
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
 class MediatorCurrenciesDataSource(
     private val remoteRepository: RetrofitCurrencyRepository,
-    private val localRepository: LocalRepository
+    private val dao: CurrencyDao
 ) : CurrenciesDataSource {
 
-    override fun observeAll(): Flow<List<Currency>> {
-        return localRepository.readSupportedCurrencies().onEach {
-            if (it.isEmpty()) {
-                refresh()
-            }
-        }
-    }
+    override fun observeAll() =
+        dao.readAll().map { roomCurrencies -> roomCurrencies.map(RoomCurrency::toDomain) }
+            .onEach { if (it.isEmpty()) refresh() }
 
-    override fun observeFavorites(): Flow<List<Currency>> {
-        return localRepository.readFavoriteCurrencies()
-    }
+    override fun observeFavorites() = dao.readFavorites()
+        .map { roomCurrencies -> roomCurrencies.map(RoomCurrency::toDomain) }
 
     suspend fun refresh() {
         val currencies = remoteRepository.readSupportedCurrencies()
-        localRepository.saveSupportedCurrencies(currencies)
+
+        val list = currencies.map { currency -> RoomCurrency(currency) }
+        dao.insert(list)
     }
 }

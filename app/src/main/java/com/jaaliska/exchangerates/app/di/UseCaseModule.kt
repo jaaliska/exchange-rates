@@ -18,7 +18,7 @@ internal val useCaseModule = module {
 
     factory<UpdateCurrencyFavoriteStateUseCase> {
         UpdateCurrencyFavoriteStateUseCaseImpl(
-            localCurrencyRepository = get()
+            dao = get()
         )
     }
 }

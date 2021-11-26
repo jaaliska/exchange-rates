@@ -30,7 +30,7 @@ class ModulesCheckTest : AutoCloseKoinTest() {
         Mockito.mock(clazz.java)
     }
 
-//    @org.junit.Before
+//    @Before
 //    fun setup() {
 //        Dispatchers.setMain(TestCoroutineDispatcher())
 //    }
