@@ -8,7 +8,7 @@ import java.util.*
 object TestData {
 
     val setCodes = setOf("AMD", "ALL", "AED", "AFN")
-    val listCurrencies = mutableListOf(
+    val listCurrencies = listOf(
         Currency(code = "AMD", name = "Armenian dram"),
         Currency(code = "ALL", name = "Albanian lek"),
         Currency(code = "AED", name = "United Arab Emirates dirham"),
