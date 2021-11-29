@@ -56,16 +56,17 @@ class CurrencyChoiceDialogViewModel(
             isLoading.emit(true)
             if (initialFavoritesCodes == modifiedFavoritesCodes) {
                 doOnFinish()
-            }
-            if (modifiedFavoritesCodes.size > 1) {
-                try {
-                    favoriteCurrenciesUseCase.set(modifiedFavoritesCodes)
-                } catch (ex: java.lang.Exception) {
-                    errors.emit(errorHandler.map(ex))
-                }
-                doOnFinish()
             } else {
-                errors.emit(R.string.not_enough_changed_currency)
+                if (modifiedFavoritesCodes.size > 1) {
+                    try {
+                        favoriteCurrenciesUseCase.set(modifiedFavoritesCodes)
+                    } catch (ex: java.lang.Exception) {
+                        errors.emit(errorHandler.map(ex))
+                    }
+                    doOnFinish()
+                } else {
+                    errors.emit(R.string.not_enough_changed_currency)
+                }
             }
             isLoading.emit(false)
         }
