@@ -6,6 +6,8 @@ import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.const.TestData.listCurrencies
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetSupportedCurrenciesUseCase
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -13,7 +15,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import org.mockito.Mockito.*
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
@@ -24,14 +25,14 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
 
     @Test
     fun testAddItems(): Unit = runBlocking {
-        `when`(getSupportedCurrenciesUseCase(true)).thenReturn(listCurrencies)
-        mock(FavoriteCurrenciesUseCase::class.java) {
-            on(favoriteCurrenciesUseCase.get()).then(listOf())
+//        `when`(getSupportedCurrenciesUseCase(true)).thenReturn(listCurrencies)
+        val useCase = mock<FavoriteCurrenciesUseCase> {
+            onBlocking { get() }.thenReturn(listOf())
         }
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
-            getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
+            getSupportedCurrenciesUseCase, useCase
         )
-        verify(favoriteCurrenciesUseCase).get()
+        verify(useCase).get()
         currencyChoiceDialogViewModel.onItemClick("AMD", true)
         currencyChoiceDialogViewModel.onItemClick("ALL", true)
         currencyChoiceDialogViewModel.onItemClick("AED", true)
@@ -46,8 +47,7 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
         }
 
         val expectedList = setOf("AMD", "ALL", "AED", "AFN")
-        verify(favoriteCurrenciesUseCase).set(expectedList)
-
+        verify(useCase).set(expectedList)
     }
 
     @Test
