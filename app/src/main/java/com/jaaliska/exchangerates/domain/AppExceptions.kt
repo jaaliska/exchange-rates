@@ -1,7 +1,6 @@
 package com.jaaliska.exchangerates.domain
 
 import timber.log.Timber
-import java.lang.Exception
 
 class NetworkError(message: String? = null) : Exception()
 class GenericError(message: String? = null) : Exception()
@@ -24,3 +23,5 @@ class RatesNotFoundException(
         Timber.e("Rates by $baseCurrencyCode code is absent")
     }
 }
+
+class IllegalFavoritesCountException : Exception()

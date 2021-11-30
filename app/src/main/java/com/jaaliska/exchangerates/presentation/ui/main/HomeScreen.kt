@@ -8,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.utils.MoneyValueFilter
-import com.jaaliska.exchangerates.presentation.utils.observe
+import com.jaaliska.exchangerates.presentation.common.utils.MoneyValueFilter
+import com.jaaliska.exchangerates.presentation.common.utils.observe
 import kotlinx.android.synthetic.main.fragment_screen_home.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat

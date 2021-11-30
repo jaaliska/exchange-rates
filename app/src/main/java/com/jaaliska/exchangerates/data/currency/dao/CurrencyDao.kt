@@ -1,6 +1,9 @@
 package com.jaaliska.exchangerates.data.currency.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.jaaliska.exchangerates.data.currency.model.db.RoomCurrency
 
 @Dao
@@ -10,7 +13,7 @@ interface CurrencyDao {
     suspend fun insert(value: List<RoomCurrency>)
 
     @Query("UPDATE currency SET isFavorite = code IN (:codes)")
-    suspend fun setIsFavorite(codes: Set<String>)
+    suspend fun setIsFavorite(codes: List<String>)
 
     @Query("DELETE FROM currency")
     suspend fun deleteAll()

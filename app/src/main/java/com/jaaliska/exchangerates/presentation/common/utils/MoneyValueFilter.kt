@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.utils
+package com.jaaliska.exchangerates.presentation.common.utils
 
 import android.text.SpannableStringBuilder
 import android.text.Spanned

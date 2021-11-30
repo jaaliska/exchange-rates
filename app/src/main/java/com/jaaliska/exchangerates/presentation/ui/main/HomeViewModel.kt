@@ -9,9 +9,9 @@ import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
 import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
-import com.jaaliska.exchangerates.presentation.error.ErrorHandler
+import com.jaaliska.exchangerates.presentation.common.error.ErrorHandler
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
-import com.jaaliska.exchangerates.presentation.utils.doOnError
+import com.jaaliska.exchangerates.presentation.common.utils.doOnError
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*

@@ -1,10 +1,14 @@
 package com.jaaliska.exchangerates.presentation.ui.currencyChoice
 
 import androidx.lifecycle.viewModelScope
-import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.domain.usecases.GetSupportedCurrenciesUseCase
-import com.jaaliska.exchangerates.presentation.error.ErrorHandler
+import com.jaaliska.exchangerates.presentation.common.error.ErrorHandler
+import com.jaaliska.exchangerates.presentation.common.list.checkable_item.CheckableItem
+import com.jaaliska.exchangerates.presentation.common.mapping.toCurrency
+import com.jaaliska.exchangerates.presentation.common.mapping.toSelectableItem
+import com.jaaliska.exchangerates.presentation.common.utils.safeLaunch
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -14,61 +18,53 @@ class CurrencyChoiceDialogViewModel(
     private val favoriteCurrenciesUseCase: FavoriteCurrenciesUseCase,
 ) : BaseCurrencyChoiceDialogViewModel() {
 
-    override val items = MutableSharedFlow<List<SelectableItem>>(0)
-    override val errors = MutableSharedFlow<Int>(0)
-    override val isLoading = MutableStateFlow<Boolean>(true)
+    override val items = MutableStateFlow(listOf<CheckableItem>())
+    override val error = MutableSharedFlow<Int?>(0)
+    override val isLoading = MutableStateFlow(false)
+
     private val errorHandler = ErrorHandler()
-    private lateinit var initialFavoritesCodes: Set<String>
-    private lateinit var modifiedFavoritesCodes: MutableSet<String>
 
     init {
-        viewModelScope.launch {
-            try {
-                val supportedCurrencies = getSupportedCurrenciesUseCase(true)
-                initialFavoritesCodes = favoriteCurrenciesUseCase.get().map { it.code }.toSet()
-                modifiedFavoritesCodes =
-                    mutableListOf(*initialFavoritesCodes.toTypedArray()).toMutableSet()
-                items.emit(supportedCurrencies.map {
-                    SelectableItem(
-                        subtitle = it.name,
-                        title = it.code,
-                        isSelected = initialFavoritesCodes.contains(it.code)
-                    )
-                })
-            } catch (ex: Exception) {
-                errors.emit(errorHandler.map(ex))
-            }
-
-            isLoading.emit(false)
-        }
-    }
-
-    override fun onItemClick(currencyCode: String, isChecked: Boolean) {
-        if (isChecked) {
-            modifiedFavoritesCodes.add(currencyCode)
-        } else {
-            modifiedFavoritesCodes.remove(currencyCode)
-        }
-    }
-
-    override fun onOkClick(doOnFinish: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.safeLaunch(handleError = ::handleError) {
             isLoading.emit(true)
-            if (initialFavoritesCodes == modifiedFavoritesCodes) {
-                doOnFinish()
-            } else {
-                if (modifiedFavoritesCodes.size > 1) {
-                    try {
-                        favoriteCurrenciesUseCase.set(modifiedFavoritesCodes)
-                    } catch (ex: java.lang.Exception) {
-                        errors.emit(errorHandler.map(ex))
-                    }
-                    doOnFinish()
-                } else {
-                    errors.emit(R.string.not_enough_changed_currency)
-                }
-            }
+
+            val supportedCurrencies = getSupportedCurrenciesUseCase(true)
+            val favorites = favoriteCurrenciesUseCase.get()
+
+            items.emit(supportedCurrencies.map {
+                it.toSelectableItem(favorites.contains(it))
+            })
             isLoading.emit(false)
         }
+    }
+
+    override fun onItemSelected(item: CheckableItem, isChecked: Boolean) {
+        val newItems = items.value.toMutableList()
+        val index = newItems.indexOf(item)
+        newItems[index] = item.copy(isSelected = isChecked)
+
+        viewModelScope.launch { items.emit(newItems) }
+    }
+
+    override fun submit(onSuccess: () -> Unit) {
+        viewModelScope.safeLaunch(Dispatchers.IO, handleError = ::handleError) {
+            isLoading.emit(true)
+
+            val newFavorites = items.value
+                .filter { it.isSelected }
+                .map { it.toCurrency() }
+            favoriteCurrenciesUseCase.set(newFavorites)
+
+            isLoading.emit(false)
+            onSuccess()
+        }
+    }
+
+
+    private suspend fun handleError(e: Exception) {
+        val errorRes = errorHandler.map(e)
+
+        error.emit(errorRes)
+        isLoading.emit(false)
     }
 }

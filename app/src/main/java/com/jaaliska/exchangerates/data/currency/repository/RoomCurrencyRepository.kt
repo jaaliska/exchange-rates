@@ -47,7 +47,7 @@ class RoomCurrencyRepository(
         }
     }
 
-    suspend fun saveFavoriteCurrencies(currencyCodes: Set<String>) {
+    suspend fun saveFavoriteCurrencies(currencyCodes: List<String>) {
         db.currencyDao().setIsFavorite(currencyCodes)
     }
 }

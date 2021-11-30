@@ -33,14 +33,14 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
             getSupportedCurrenciesUseCase, useCase
         )
         verify(useCase).get()
-        currencyChoiceDialogViewModel.onItemClick("AMD", true)
-        currencyChoiceDialogViewModel.onItemClick("ALL", true)
-        currencyChoiceDialogViewModel.onItemClick("AED", true)
-        currencyChoiceDialogViewModel.onItemClick("AFN", true)
+        currencyChoiceDialogViewModel.onItemSelected("AMD", true)
+        currencyChoiceDialogViewModel.onItemSelected("ALL", true)
+        currencyChoiceDialogViewModel.onItemSelected("AED", true)
+        currencyChoiceDialogViewModel.onItemSelected("AFN", true)
 
         currencyChoiceDialogViewModel.isLoading.test {
             assertEquals(false, awaitItem())
-            currencyChoiceDialogViewModel.onOkClick {}
+            currencyChoiceDialogViewModel.submit {}
             assertEquals(true, awaitItem())
             assertEquals(false, awaitItem())
             expectNoEvents()
@@ -58,12 +58,12 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
             getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
         )
         verify(favoriteCurrenciesUseCase).get()
-        currencyChoiceDialogViewModel.onItemClick("AFN", false)
-        currencyChoiceDialogViewModel.onItemClick("ALL", false)
+        currencyChoiceDialogViewModel.onItemSelected("AFN", false)
+        currencyChoiceDialogViewModel.onItemSelected("ALL", false)
 
         currencyChoiceDialogViewModel.isLoading.test {
             assertEquals(false, awaitItem())
-            currencyChoiceDialogViewModel.onOkClick {}
+            currencyChoiceDialogViewModel.submit {}
             assertEquals(true, awaitItem())
             assertEquals(false, awaitItem())
         }
@@ -81,9 +81,9 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
             getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
         )
         verify(favoriteCurrenciesUseCase).get()
-        currencyChoiceDialogViewModel.onItemClick("AMD", true)
+        currencyChoiceDialogViewModel.onItemSelected("AMD", true)
         currencyChoiceDialogViewModel.errors.test {
-            currencyChoiceDialogViewModel.onOkClick {}
+            currencyChoiceDialogViewModel.submit {}
             assertEquals(R.string.not_enough_changed_currency, awaitItem())
             expectNoEvents()
         }
