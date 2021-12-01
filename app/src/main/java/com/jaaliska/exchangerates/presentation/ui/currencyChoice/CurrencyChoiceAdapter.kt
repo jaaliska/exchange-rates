@@ -10,25 +10,23 @@ import com.jaaliska.exchangerates.presentation.ui.currencyChoice.BaseCurrencyCho
 import kotlinx.android.synthetic.main.currency_choice_item.view.*
 
 class CurrencyChoiceAdapter(
-    private val onItemClick: (currencyCode: String, isCheck: Boolean) -> Unit
+    private val onItemClick: (item: SelectableItem, isCheck: Boolean) -> Unit
 ) : ListAdapter<SelectableItem, CurrencyChoiceAdapter.CheckableViewHolder>(
     SelectableItem.diffCallback
 ) {
 
     class CheckableViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(
-            items: SelectableItem,
-            onItemClick: (currencyCode: String, isCheck: Boolean) -> Unit
+            item: SelectableItem,
+            onItemClick: (item: SelectableItem, isCheck: Boolean) -> Unit
         ) {
             itemView.apply {
-                title.text = items.title
-                subtitle.text = items.subtitle
-                checkbox.isChecked = items.isSelected
+                title.text = item.title
+                subtitle.text = item.subtitle
+                checkbox.isChecked = item.isSelected
+
                 this.setOnClickListener {
-                    val changedValue = !checkbox.isChecked
-                    onItemClick(items.title, changedValue)
-                    items.isSelected = changedValue
-                    checkbox.isChecked = changedValue
+                    onItemClick(item, !item.isSelected)
                 }
             }
         }

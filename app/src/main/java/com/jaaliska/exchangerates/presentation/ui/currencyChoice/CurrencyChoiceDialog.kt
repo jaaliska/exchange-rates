@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jaaliska.exchangerates.R
@@ -17,8 +17,8 @@ class CurrencyChoiceDialog : DialogFragment() {
 
     private val viewModel by viewModel<BaseCurrencyChoiceDialogViewModel>()
     private val adapter by lazy {
-        CurrencyChoiceAdapter { code, isChecked ->
-            viewModel.onItemClick(code, isChecked)
+        CurrencyChoiceAdapter { item, isChecked ->
+            viewModel.onItemSelected(item, isChecked)
         }
     }
 
@@ -52,7 +52,7 @@ class CurrencyChoiceDialog : DialogFragment() {
             adapter.submitList(supportedCurrencies)
         }
         viewModel.isLoading.observe(viewLifecycleOwner) {
-            progressBar.visibility = if (it) ProgressBar.VISIBLE else ProgressBar.INVISIBLE
+            progressBar.isVisible = it
         }
         viewModel.errors.observe(viewLifecycleOwner) {
             Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()

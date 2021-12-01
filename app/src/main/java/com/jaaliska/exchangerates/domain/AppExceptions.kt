@@ -24,3 +24,5 @@ class RatesNotFoundException(
         Timber.e("Rates by $baseCurrencyCode code is absent")
     }
 }
+
+class IllegalFavoritesCountException : Exception()

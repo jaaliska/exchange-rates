@@ -11,7 +11,7 @@ abstract class BaseCurrencyChoiceDialogViewModel : ViewModel() {
     abstract val errors: Flow<Int>
     abstract val isLoading: StateFlow<Boolean>
 
-    abstract fun onItemClick(currencyCode: String, isChecked: Boolean)
+    abstract fun onItemSelected(item: SelectableItem, isChecked: Boolean)
     abstract fun onOkClick(doOnFinish: () -> Unit)
 
     data class SelectableItem(
