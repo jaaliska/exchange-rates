@@ -51,7 +51,7 @@ class HomeScreen : Fragment(R.layout.fragment_screen_home) {
             swipeRefresh.isRefreshing = it
         }
 
-        viewModel.errors.observe(viewLifecycleOwner) {
+        viewModel.error.observe(viewLifecycleOwner) {
             Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
         }
         viewModel.currencyChoiceDialog.observe(viewLifecycleOwner) {

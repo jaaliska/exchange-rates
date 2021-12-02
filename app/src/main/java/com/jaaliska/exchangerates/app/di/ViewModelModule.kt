@@ -1,7 +1,6 @@
 package com.jaaliska.exchangerates.app.di
 
 import com.jaaliska.exchangerates.data.rates.repository.RoomRatesRepository
-import com.jaaliska.exchangerates.presentation.ui.MainActivityViewModel
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.BaseCurrencyChoiceDialogViewModel
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialogViewModel
 import com.jaaliska.exchangerates.presentation.ui.main.BaseHomeViewModel
@@ -13,22 +12,17 @@ internal val viewModels = module {
     viewModel< BaseHomeViewModel> {
         val roomRatesRepository: RoomRatesRepository = get()
         HomeViewModel(
-            getNamedRatesUseCase = get(),
-            refreshRatesUseCase = get(),
+            ratesDataSource = get(),
             prefsRepository = get(),
-            favoriteCurrenciesUseCase = get(),
+            currencies = get(),
             getRatesUpdateDates = roomRatesRepository.getDateChanges()
         )
     }
-    viewModel {
-        MainActivityViewModel(
-            prefsRepository = get()
-        )
-    }
+
     viewModel<BaseCurrencyChoiceDialogViewModel> {
         CurrencyChoiceDialogViewModel(
-            getSupportedCurrenciesUseCase = get(),
-            favoriteCurrenciesUseCase = get()
+            setFavoriteCurrencies = get(),
+            currencies = get()
         )
     }
 }

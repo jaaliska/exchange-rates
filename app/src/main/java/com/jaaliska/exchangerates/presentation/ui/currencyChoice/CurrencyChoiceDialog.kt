@@ -54,11 +54,11 @@ class CurrencyChoiceDialog : DialogFragment() {
         viewModel.isLoading.observe(viewLifecycleOwner) {
             progressBar.isVisible = it
         }
-        viewModel.errors.observe(viewLifecycleOwner) {
+        viewModel.error.observe(viewLifecycleOwner) {
             Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
         }
         buttonOk.setOnClickListener {
-            viewModel.onOkClick { dismiss() }
+            viewModel.submitItems { dismiss() }
         }
         buttonCancel.setOnClickListener {
             dismiss()

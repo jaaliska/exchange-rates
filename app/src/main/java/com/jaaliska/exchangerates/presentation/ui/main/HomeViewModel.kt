@@ -6,21 +6,18 @@ import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.model.Rate
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
-import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
-import com.jaaliska.exchangerates.domain.usecases.GetNamedRatesUseCase
-import com.jaaliska.exchangerates.domain.usecases.RefreshRatesUseCase
+import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
+import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
 import com.jaaliska.exchangerates.presentation.error.ErrorHandler
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
-import com.jaaliska.exchangerates.presentation.utils.doOnError
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
 class HomeViewModel(
-    private val getNamedRatesUseCase: GetNamedRatesUseCase,
-    private val refreshRatesUseCase: RefreshRatesUseCase,
+    private val ratesDataSource: RatesDataSource,
     private val prefsRepository: PreferencesRepository,
-    private val favoriteCurrenciesUseCase: FavoriteCurrenciesUseCase,
+    private val currencies: CurrenciesDataSource,
     private val getRatesUpdateDates: Flow<Map<BaseCurrencyCode, Date>>
 ) : BaseHomeViewModel() {
 
@@ -32,22 +29,22 @@ class HomeViewModel(
     override val anchor = MutableStateFlow<Item?>(null)
     override val updateDate = MutableStateFlow<Date?>(null)
     override val isLoading = MutableStateFlow<Boolean>(false)
-    override val errors = MutableSharedFlow<Int>(0)
+    override val error = MutableSharedFlow<Int>(0)
     override val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
 
     private val errorHandler = ErrorHandler()
 
     init {
         viewModelScope.launch {
-            val favorites = favoriteCurrenciesUseCase.get()
+            val favorites = currencies.getFavorite()
             if (favorites.isNotEmpty()) {
                 updateExchangeRates(prefsRepository.getBaseCurrencyCode())
             } else {
-                showCurrencyChoiceDialog()
+                currencyChoiceDialog.emit(CurrencyChoiceDialog())
             }
             getRatesUpdateDates
-                .doOnError {
-                    errors.emit(errorHandler.map(it))
+                .catch {
+                    error.emit(errorHandler.map(it))
                 }
                 .onEach {
                     val baseCurrencyCode = prefsRepository.getBaseCurrencyCode()
@@ -57,13 +54,6 @@ class HomeViewModel(
                     }
                 }
                 .launchIn(viewModelScope)
-        }
-    }
-
-    private fun showCurrencyChoiceDialog() {
-        viewModelScope.launch {
-            val dialog = CurrencyChoiceDialog()
-            currencyChoiceDialog.emit(dialog)
         }
     }
 
@@ -81,9 +71,9 @@ class HomeViewModel(
         viewModelScope.launch {
             isLoading.emit(true)
             try {
-                refreshRatesUseCase()
+                ratesDataSource.refresh()
             } catch (ex: Exception) {
-                errors.emit(errorHandler.map(ex))
+                error.emit(errorHandler.map(ex))
             } finally {
                 isLoading.emit(false)
             }
@@ -97,7 +87,7 @@ class HomeViewModel(
         viewModelScope.launch {
             isLoading.emit(true)
             try {
-                getNamedRatesUseCase(baseCurrencyCode).apply {
+                ratesDataSource.getNamedRates(baseCurrencyCode).apply {
                     prefsRepository.setBaseCurrencyCode(this.baseCurrency.code)
                     applyExchangeRatesToScreen(this)
                     if (onFinished != null) {
@@ -105,7 +95,7 @@ class HomeViewModel(
                     }
                 }
             } catch (ex: Exception) {
-                errors.emit(errorHandler.map(ex))
+                error.emit(errorHandler.map(ex))
             } finally {
                 isLoading.emit(false)
             }

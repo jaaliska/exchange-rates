@@ -12,7 +12,7 @@ abstract class BaseHomeViewModel : ViewModel() {
     abstract val items: Flow<List<Item>>
     abstract val updateDate: Flow<Date?>
     abstract val isLoading: Flow<Boolean>
-    abstract val errors: Flow<Int>
+    abstract val error: Flow<Int>
     abstract val currencyChoiceDialog: Flow<CurrencyChoiceDialog>
 
     abstract fun onItemSelection(item: Item)

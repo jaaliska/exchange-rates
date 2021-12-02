@@ -1,47 +1,36 @@
 package com.jaaliska.exchangerates.app.di
 
-import com.jaaliska.exchangerates.data.usecase.*
-import com.jaaliska.exchangerates.domain.usecases.*
+import com.jaaliska.exchangerates.data.datasource.CurrenciesDataSourceImpl
+import com.jaaliska.exchangerates.data.datasource.RatesDataSourceImpl
+import com.jaaliska.exchangerates.data.usecase.SetFavoriteCurrenciesUseCaseImpl
+import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
+import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
+import com.jaaliska.exchangerates.domain.usecases.SetFavoriteCurrenciesUseCase
 import org.koin.dsl.module
 
 internal val useCaseModule = module {
 
-    single<GetSupportedCurrenciesUseCase> {
-        GetSupportedCurrenciesUseCaseImpl(
-            remoteCurrencyRepository = get(),
-            localCurrenciesRepository = get()
-        )
-    }
-
-    single<GetNamedRatesUseCase> {
-        GetNamedRatesUseCaseImpl(
-            localCurrencyRepository = get(),
-            getRatesUseCase = get()
-        )
-    }
-
-    single<GetRatesUseCase> {
-        GetRatesUseCaseImpl(
+    single<RatesDataSource> {
+        RatesDataSourceImpl(
             localRatesRepository = get(),
             localCurrencyRepository = get(),
-            refreshRatesUseCase = get()
-        )
-    }
-
-    single<RefreshRatesUseCase> {
-        RefreshRatesUseCaseImpl(
-            localRatesRepository = get(),
             remoteRatesRepository = get(),
-            localCurrencyRepository = get(),
             alarmService = get()
         )
     }
 
-    single<FavoriteCurrenciesUseCase> {
-        FavoriteCurrenciesUseCaseImpl(
+    single<SetFavoriteCurrenciesUseCase> {
+        SetFavoriteCurrenciesUseCaseImpl(
             localCurrencyRepository = get(),
-            refreshRatesUseCase = get(),
+            ratesDataSource = get(),
             preferencesRepository = get()
+        )
+    }
+
+    single<CurrenciesDataSource> {
+        CurrenciesDataSourceImpl(
+            remoteCurrencyRepository = get(),
+            localCurrencyRepository = get()
         )
     }
 }

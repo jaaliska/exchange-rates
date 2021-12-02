@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 abstract class BaseCurrencyChoiceDialogViewModel : ViewModel() {
 
     abstract val items: Flow<List<SelectableItem>>
-    abstract val errors: Flow<Int>
+    abstract val error: Flow<Int>
     abstract val isLoading: StateFlow<Boolean>
 
     abstract fun onItemSelected(item: SelectableItem, isChecked: Boolean)
-    abstract fun onOkClick(doOnFinish: () -> Unit)
+    abstract fun submitItems(doOnFinish: () -> Unit)
 
     data class SelectableItem(
         val title: String,
