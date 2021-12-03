@@ -4,13 +4,14 @@ import app.cash.turbine.test
 import com.jaaliska.exchangerates.BaseTestCase
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.const.TestData.listCurrencies
-import com.jaaliska.exchangerates.const.TestData.listCurrencyItemsAllFalse
-import com.jaaliska.exchangerates.const.TestData.listCurrencyItemsAllTrue
+import com.jaaliska.exchangerates.const.TestData.setOfCurrencyCodes
 import com.jaaliska.exchangerates.domain.IllegalFavoritesCountException
-import com.jaaliska.exchangerates.domain.usecases.FavoriteCurrenciesUseCase
-import com.jaaliska.exchangerates.domain.usecases.GetSupportedCurrenciesUseCase
+import com.jaaliska.exchangerates.domain.model.Currency
+import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
+import com.jaaliska.exchangerates.domain.usecases.SetFavoriteCurrenciesUseCase
+import com.jaaliska.exchangerates.presentation.mapping.toSelectableItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.mockito.Mockito.*
 import kotlin.test.assertEquals
@@ -19,81 +20,82 @@ import kotlin.test.assertEquals
 class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
 
     @Test
-    fun testAddAndSaveItems(): Unit = runBlocking {
-        val getSupportedCurrenciesUseCase = mock(GetSupportedCurrenciesUseCase::class.java)
-        val favoriteCurrenciesUseCase = mock(FavoriteCurrenciesUseCase::class.java)
-        `when`(getSupportedCurrenciesUseCase(true)).thenReturn(listCurrencies)
-        `when`(favoriteCurrenciesUseCase.get()).thenReturn(listOf())
+    fun `test selecting item is modifying list of items`(): Unit = runBlockingTest {
+        val initialFavorites = listOf<Currency>()
+        val initialSupportedCurrencies = listCurrencies
+        val initialItems = listCurrencies.map { currency ->
+            currency.toSelectableItem(false)
+        }
+        val expectedItems = listCurrencies.map { currency ->
+            currency.toSelectableItem(true)
+        }
+
+        val setFavoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
+        val currencies = mock(CurrenciesDataSource::class.java)
+        `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
+        `when`(currencies.getFavorite()).thenReturn(initialFavorites)
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
-            getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
+            setFavoriteCurrenciesUseCase, currencies
         )
-        for (item in listCurrencyItemsAllFalse) {
+
+        for (item in initialItems) {
             currencyChoiceDialogViewModel.onItemSelected(item, true)
         }
 
         currencyChoiceDialogViewModel.items.test {
-            assertEquals(listCurrencyItemsAllTrue, awaitItem())
+            assertEquals(expectedItems, awaitItem())
             expectNoEvents()
         }
     }
 
     @Test
-    fun testRemoveItems(): Unit = runBlocking {
-        val getSupportedCurrenciesUseCase = mock(GetSupportedCurrenciesUseCase::class.java)
-        val favoriteCurrenciesUseCase = mock(FavoriteCurrenciesUseCase::class.java)
-        `when`(getSupportedCurrenciesUseCase(true)).thenReturn(listCurrencies)
-        `when`(favoriteCurrenciesUseCase.get()).thenReturn(listCurrencies)
+    fun `test deselecting item is modifying list of items`(): Unit = runBlockingTest {
+        val initialFavorites = listCurrencies
+        val initialSupportedCurrencies = listCurrencies
+        val initialItems = listCurrencies.map { currency ->
+            currency.toSelectableItem(true)
+        }
+        val expectedItems = initialItems.mapIndexed { index, item ->
+            item.copy(isSelected = index >= 2)
+        }
+
+        val setFavoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
+        val currencies = mock(CurrenciesDataSource::class.java)
+        `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
+        `when`(currencies.getFavorite()).thenReturn(initialFavorites)
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
-            getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
-        )
-        verify(favoriteCurrenciesUseCase).get()
-
-        currencyChoiceDialogViewModel.onItemSelected(
-            BaseCurrencyChoiceDialogViewModel.SelectableItem(
-                title = "AFN",
-                subtitle = "4",
-                isSelected = true
-            ), false
-        )
-        currencyChoiceDialogViewModel.onItemSelected(
-            BaseCurrencyChoiceDialogViewModel.SelectableItem(
-                title = "ALL",
-                subtitle = "2",
-                isSelected = true
-            ), false
+            setFavoriteCurrenciesUseCase, currencies
         )
 
-        val expectedList = listCurrencyItemsAllTrue.toMutableList()
-        expectedList
-            .filter { it.title == "AFN" || it.title == "ALL" }
-            .map { it.isSelected = false }
+        for (item in initialItems.subList(0, 2)) {
+            currencyChoiceDialogViewModel.onItemSelected(item, false)
+        }
 
         currencyChoiceDialogViewModel.items.test {
-            assertEquals(expectedList, awaitItem())
+            assertEquals(expectedItems, awaitItem())
             expectNoEvents()
         }
     }
 
     @Test
-    fun testLessThenTwoItemsAreSelected(): Unit = runBlocking {
-        val getSupportedCurrenciesUseCase = mock(GetSupportedCurrenciesUseCase::class.java)
-        val favoriteCurrenciesUseCase = mock(FavoriteCurrenciesUseCase::class.java)
-        `when`(getSupportedCurrenciesUseCase(true)).thenReturn(listCurrencies)
-        `when`(favoriteCurrenciesUseCase.get()).thenReturn(listOf())
-        `when`(favoriteCurrenciesUseCase.set(setOf("AMD"))).thenThrow(IllegalFavoritesCountException())
-        val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
-            getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
-        )
-        currencyChoiceDialogViewModel.onItemSelected(
-            BaseCurrencyChoiceDialogViewModel.SelectableItem(
-                title = "AMD",
-                subtitle = "1",
-                isSelected = false
-            ), true
-        )
+    fun `test less then two items are selected`(): Unit = runBlockingTest {
+        val initialSupportedCurrencies = listCurrencies
+        val selectableItem = listCurrencies.first().toSelectableItem(false)
 
-        currencyChoiceDialogViewModel.errors.test {
-            currencyChoiceDialogViewModel.onOkClick {}
+        val setFavoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
+        val currencies = mock(CurrenciesDataSource::class.java)
+        `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
+        `when`(currencies.getFavorite()).thenReturn(listOf())
+        `when`(setFavoriteCurrenciesUseCase.invoke(setOf(selectableItem.title))).thenThrow(
+            IllegalFavoritesCountException()
+        )
+        val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
+            setFavoriteCurrenciesUseCase, currencies
+        )
+        currencyChoiceDialogViewModel.onItemSelected(selectableItem, true)
+
+        currencyChoiceDialogViewModel.error.test {
+            currencyChoiceDialogViewModel.submitItems {}
 
             assertEquals(R.string.not_enough_changed_currency, awaitItem())
             expectNoEvents()
@@ -101,45 +103,48 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
     }
 
     @Test
-    fun testSavingItems(): Unit = runBlocking {
-        val getSupportedCurrenciesUseCase = mock(GetSupportedCurrenciesUseCase::class.java)
-        val favoriteCurrenciesUseCase = mock(FavoriteCurrenciesUseCase::class.java)
-        `when`(getSupportedCurrenciesUseCase(true)).thenReturn(listCurrencies)
-        `when`(favoriteCurrenciesUseCase.get()).thenReturn(listOf())
+    fun `test saving items`(): Unit = runBlockingTest {
+        val initialSupportedCurrencies = listCurrencies
+        val selectableItems = listCurrencies.map { currency ->
+            currency.toSelectableItem(false)
+        }
+        val expectedList = setOfCurrencyCodes
+
+        val favoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
+        val currencies = mock(CurrenciesDataSource::class.java)
+        `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
+        `when`(currencies.getFavorite()).thenReturn(listOf())
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
-            getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
+            favoriteCurrenciesUseCase, currencies
         )
-        for (item in listCurrencyItemsAllFalse) {
+        for (item in selectableItems) {
             currencyChoiceDialogViewModel.onItemSelected(item, true)
         }
 
-        currencyChoiceDialogViewModel.onOkClick {}
+        currencyChoiceDialogViewModel.submitItems {}
 
-        val expectedList = setOf("AMD", "ALL", "AED", "AFN")
-        verify(favoriteCurrenciesUseCase).set(expectedList)
+        verify(favoriteCurrenciesUseCase).invoke(expectedList)
     }
 
     @Test
-    fun testLoaderOnOkClick(): Unit = runBlocking {
-        val getSupportedCurrenciesUseCase = mock(GetSupportedCurrenciesUseCase::class.java)
-        val favoriteCurrenciesUseCase = mock(FavoriteCurrenciesUseCase::class.java)
-        `when`(getSupportedCurrenciesUseCase(true)).thenReturn(listCurrencies)
-        `when`(favoriteCurrenciesUseCase.get()).thenReturn(listCurrencies)
+    fun `test loader submit items`(): Unit = runBlockingTest {
+        val initialFavorites = listCurrencies
+        val initialSupportedCurrencies = listCurrencies
+        val selectableItem = listCurrencies.last().toSelectableItem(true)
+
+        val favoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
+        val currencies = mock(CurrenciesDataSource::class.java)
+        `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
+        `when`(currencies.getFavorite()).thenReturn(initialFavorites)
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
-            getSupportedCurrenciesUseCase, favoriteCurrenciesUseCase
+            favoriteCurrenciesUseCase, currencies
         )
-        currencyChoiceDialogViewModel.onItemSelected(
-            BaseCurrencyChoiceDialogViewModel.SelectableItem(
-                title = "ALL",
-                subtitle = "2",
-                isSelected = true
-            ), false
-        )
+        currencyChoiceDialogViewModel.onItemSelected(selectableItem, false)
 
         currencyChoiceDialogViewModel.isLoading.test {
             assertEquals(false, awaitItem())
 
-            currencyChoiceDialogViewModel.onOkClick {}
+            currencyChoiceDialogViewModel.submitItems {}
 
             assertEquals(true, awaitItem())
             assertEquals(false, awaitItem())

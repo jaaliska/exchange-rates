@@ -2,12 +2,9 @@ package com.jaaliska.exchangerates.data.usecase
 
 import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
 import com.jaaliska.exchangerates.domain.IllegalFavoritesCountException
-import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
-import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
+import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.usecases.SetFavoriteCurrenciesUseCase
-import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialogViewModel
-import kotlin.jvm.Throws
 
 class SetFavoriteCurrenciesUseCaseImpl(
     private val localCurrencyRepository: RoomCurrencyRepository,
