@@ -1,8 +1,13 @@
 <resources>
     <string name="app_name">ExchangeRates</string>
-    <string name="the_last_update_was_at">The last update was at %s</string>
+
     <string name="network_error">Network error</string>
     <string name="something_went_wrong">Something went wrong</string>
+
+    <!-- RatesScreen -->
+    <string name="the_last_update_was_at">The last update was at %s</string>
+    <string name="no_favorite_currencies">You have no favorite currencies</string>
+    <string name="add_favorites">Add favorites</string>
 
     <!-- CurrencyChoiceDialog -->
     <string name="choose_your_currencies">Choose your currencies</string>

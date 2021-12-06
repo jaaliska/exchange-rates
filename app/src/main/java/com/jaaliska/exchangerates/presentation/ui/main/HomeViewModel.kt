@@ -9,7 +9,6 @@ import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
 import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
 import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
 import com.jaaliska.exchangerates.presentation.error.ErrorHandler
-import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -30,7 +29,7 @@ class HomeViewModel(
     override val updateDate = MutableStateFlow<Date?>(null)
     override val isLoading = MutableStateFlow<Boolean>(false)
     override val error = MutableSharedFlow<Int>(0)
-    override val currencyChoiceDialog = MutableSharedFlow<CurrencyChoiceDialog>(0)
+    override val isHasFavorites = MutableStateFlow<Boolean?>(null)
 
     private val errorHandler = ErrorHandler()
 
@@ -40,7 +39,7 @@ class HomeViewModel(
             if (favorites.isNotEmpty()) {
                 updateExchangeRates(prefsRepository.getBaseCurrencyCode())
             } else {
-                currencyChoiceDialog.emit(CurrencyChoiceDialog())
+                isHasFavorites.emit(false)
             }
             getRatesUpdateDates
                 .catch {
@@ -97,13 +96,14 @@ class HomeViewModel(
             } catch (ex: Exception) {
                 error.emit(errorHandler.map(ex))
             } finally {
+                isHasFavorites.emit(true)
                 isLoading.emit(false)
             }
         }
     }
 
     private suspend fun applyExchangeRatesToScreen(value: ExchangeRates) {
-        rates.emit( value.rates)
+        rates.emit(value.rates)
         anchor.emit(value.baseCurrency.toItem())
         updateDate.value = value.date
     }
@@ -113,6 +113,7 @@ class HomeViewModel(
         subtitle = currency.name,
         amount = exchangeRate * anchorAmount
     )
+
     private fun Currency.toItem() = Item(
         title = code,
         subtitle = name,

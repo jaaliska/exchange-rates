@@ -2,7 +2,6 @@ package com.jaaliska.exchangerates.presentation.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DiffUtil
-import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
@@ -13,7 +12,7 @@ abstract class BaseHomeViewModel : ViewModel() {
     abstract val updateDate: Flow<Date?>
     abstract val isLoading: Flow<Boolean>
     abstract val error: Flow<Int>
-    abstract val currencyChoiceDialog: Flow<CurrencyChoiceDialog>
+    abstract val isHasFavorites: Flow<Boolean?>
 
     abstract fun onItemSelection(item: Item)
     abstract fun onAmountChanged(amount: Double)
