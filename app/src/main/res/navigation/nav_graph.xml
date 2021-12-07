@@ -3,11 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/MainScreen">
+    app:startDestination="@id/ratesScreen">
 
     <fragment
-        android:id="@+id/MainScreen"
-        android:name="com.jaaliska.exchangerates.presentation.ui.main.HomeScreen"
-        tools:layout="@layout/fragment_screen_home"/>
+        android:id="@+id/ratesScreen"
+        android:name="com.jaaliska.exchangerates.presentation.ui.rates.RatesScreen"
+        android:label="Rates"
+        tools:layout="@layout/fragment_screen_rates"/>
+
+    <fragment
+        android:id="@+id/historicalScreen"
+        android:name="com.jaaliska.exchangerates.presentation.ui.historical.HistoricalScreen"
+        android:label="Historical"
+        tools:layout="@layout/fragment_screen_historical" />
 
 </navigation>

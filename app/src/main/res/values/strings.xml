@@ -16,6 +16,8 @@
     <string name="not_enough_changed_currency">Select at least two currency</string>
 
     <!-- menu -->
-    <string name="change_currencies">Change currencies</string>
+    <string name="menu_change_currencies">Change currencies</string>
+    <string name="menu_bottom_rates">Rates</string>
+    <string name="menu_bottom_historical">Historical</string>
 
 </resources>

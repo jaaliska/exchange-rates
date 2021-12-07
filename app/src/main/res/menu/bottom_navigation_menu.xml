@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ratesScreen"
+        android:icon="@drawable/ic_rates"
+        android:title="@string/menu_bottom_rates"/>
+    <item
+        android:id="@+id/historicalScreen"
+        android:icon="@drawable/ic_historical"
+        android:title="@string/menu_bottom_historical"/>
+</menu>

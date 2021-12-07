@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.main
+package com.jaaliska.exchangerates.presentation.ui.rates
 
 import android.os.Bundle
 import android.view.View
@@ -11,16 +11,16 @@ import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
 import com.jaaliska.exchangerates.presentation.utils.MoneyValueFilter
 import com.jaaliska.exchangerates.presentation.utils.observe
-import kotlinx.android.synthetic.main.fragment_screen_home.*
+import kotlinx.android.synthetic.main.fragment_screen_rates.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class HomeScreen : Fragment(R.layout.fragment_screen_home) {
+class RatesScreen : Fragment(R.layout.fragment_screen_rates) {
 
-    private val viewModel by viewModel<BaseHomeViewModel>()
+    private val viewModel by viewModel<BaseRatesViewModel>()
     private val mainAdapter by lazy {
         MainAdapter(
             onItemClick = viewModel::onItemSelection

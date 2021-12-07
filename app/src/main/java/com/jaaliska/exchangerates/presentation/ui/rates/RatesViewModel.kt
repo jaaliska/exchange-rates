@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.main
+package com.jaaliska.exchangerates.presentation.ui.rates
 
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.data.rates.repository.BaseCurrencyCode
@@ -13,12 +13,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
-class HomeViewModel(
+class RatesViewModel(
     private val ratesDataSource: RatesDataSource,
     private val prefsRepository: PreferencesRepository,
     private val currencies: CurrenciesDataSource,
     private val getRatesUpdateDates: Flow<Map<BaseCurrencyCode, Date>>
-) : BaseHomeViewModel() {
+) : BaseRatesViewModel() {
 
     private var rates = MutableStateFlow(listOf<Rate>())
     private val anchorCurrencyAmount = MutableStateFlow<Double>(DEFAULT_BASE_CURRENCY_AMOUNT)

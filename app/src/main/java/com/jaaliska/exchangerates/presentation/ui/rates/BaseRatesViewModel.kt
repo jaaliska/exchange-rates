@@ -1,11 +1,11 @@
-package com.jaaliska.exchangerates.presentation.ui.main
+package com.jaaliska.exchangerates.presentation.ui.rates
 
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.DiffUtil
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
-abstract class BaseHomeViewModel : ViewModel() {
+abstract class BaseRatesViewModel : ViewModel() {
 
     abstract val anchor: Flow<Item?>
     abstract val items: Flow<List<Item>>

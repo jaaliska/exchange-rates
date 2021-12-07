@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.presentation.ui.main
+package com.jaaliska.exchangerates.presentation.ui.rates
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.ui.main.BaseHomeViewModel.Item
+import com.jaaliska.exchangerates.presentation.ui.rates.BaseRatesViewModel.Item
 import kotlinx.android.synthetic.main.exchange_rates_item.view.*
 
 class MainAdapter(
