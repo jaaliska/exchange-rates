@@ -21,7 +21,7 @@ abstract class BaseRatesViewModel : ViewModel() {
     data class Item(
         val title: String,
         val subtitle: String,
-        val amount: Double
+        var amount: Double
     ) {
         companion object {
             val diffCallback = object : DiffUtil.ItemCallback<Item>() {

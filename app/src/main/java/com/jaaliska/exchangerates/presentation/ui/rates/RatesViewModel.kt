@@ -63,6 +63,7 @@ class RatesViewModel(
     override fun onAmountChanged(amount: Double) {
         viewModelScope.launch {
             anchorCurrencyAmount.emit(amount)
+            anchor.value?.amount = amount
         }
     }
 
