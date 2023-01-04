@@ -2,6 +2,7 @@ package com.jaaliska.exchangerates.presentation.service
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -28,7 +29,7 @@ class AlarmService(
 
     private fun createPendingIntent(): PendingIntent {
         val intent = Intent(context, AlertReceiver::class.java)
-        return PendingIntent.getBroadcast(context, 1, intent, 0)
+        return PendingIntent.getBroadcast(context, 1, intent, FLAG_IMMUTABLE)
     }
 
     companion object {
