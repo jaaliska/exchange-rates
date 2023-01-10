@@ -1,16 +1,25 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ExchangeRates" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.ExchangeRates" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/colorPrimaryDark</item>
-        <item name="colorPrimaryVariant">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/primaryDarkColor</item>
+        <item name="colorPrimaryVariant">@color/primaryColor</item>
         <item name="colorOnPrimary">@color/white</item>
+
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/colorPrimary</item>
-        <item name="colorSecondaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorSecondary">@color/primaryColor</item>
+        <item name="colorSecondaryVariant">@color/primaryDarkColor</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+
+        <!-- Bars color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">@color/colorBottomBarLight</item>
+
         <!-- Customize your theme here. -->
+        <item name="android:buttonStyle">@style/Core.Style.Button</item>
+        <item name="android:titleTextStyle">@style/Core.Style.Text.Tittle</item>
+        <item name="android:subtitleTextStyle">@style/Core.Style.Text.Subtitle</item>
+        <item name="android:editTextStyle">@style/Core.Style.Text.Edit</item>
+        <item name="android:toolbarStyle">@style/Core.Style.Toolbar</item>
     </style>
 </resources>

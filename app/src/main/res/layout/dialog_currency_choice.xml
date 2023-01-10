@@ -7,6 +7,7 @@
 
     <TextView
         android:id="@+id/txtTittle"
+        style="?android:attr/titleTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/choose_your_currencies"
@@ -42,7 +43,7 @@
 
         <Button
             android:id="@+id/buttonOk"
-            style="@style/Core.Style.Button"
+            style="?android:attr/buttonStyle"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:text="@string/ok"
@@ -50,7 +51,7 @@
 
         <Button
             android:id="@+id/buttonCancel"
-            style="@style/Core.Style.Button"
+            style="?android:attr/buttonStyle"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:text="@string/cancel"

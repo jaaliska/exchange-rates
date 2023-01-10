@@ -1,16 +1,28 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ExchangeRates" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.ExchangeRates" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/colorPrimaryLight</item>
-        <item name="colorPrimaryVariant">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimary">@color/primaryLightColor</item>
+        <item name="colorPrimaryVariant">@color/colorLightGrape</item>
+        <item name="colorOnPrimary">@color/colorLightGrape</item>
+        <item name="android:colorBackground">@color/colorDarkGrape</item>
+        <item name="android:colorBackgroundFloating">@color/colorLightGrape</item>
+        <item name="colorSurface">@color/colorLightGrape</item>
+
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/colorPrimary</item>
-        <item name="colorSecondaryVariant">@color/colorPrimaryLight</item>
+        <item name="colorSecondary">@color/primaryLightColor</item>
+        <item name="colorSecondaryVariant">@color/primaryLightColor</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+
+        <!-- Bars color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">@color/colorLightGrape</item>
+
         <!-- Customize your theme here. -->
-    </style>
+        <item name="android:buttonStyle">@style/Core.Style.Night.Button</item>
+        <item name="android:titleTextStyle">@style/Core.Style.Night.Text.Tittle</item>
+        <item name="android:subtitleTextStyle">@style/Core.Style.Night.Text.Subtitle</item>
+        <item name="android:editTextStyle">@style/Core.Style.Night.Text.Edit</item>
+        <item name="android:toolbarStyle">@style/Core.Style.Night.Toolbar</item>
+   </style>
 </resources>

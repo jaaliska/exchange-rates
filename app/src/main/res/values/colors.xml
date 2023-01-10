@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimaryLight">#E8DEF8</color>
-    <color name="colorPrimaryDark">#512DA8</color>
-    <color name="colorPrimary">#673AB7</color>
+    <color name="primaryLightColor">#E8DEF8</color>
+    <color name="primaryDarkColor">#512DA8</color>
+    <color name="primaryColor">#673AB7</color>
+
     <color name="colorTextLight">#FFFFFF</color>
     <color name="colorTextPrimary">#212121</color>
     <color name="colorTextSecondary">#757575</color>
-    <color name="colorBottomBar">#F3EDF7</color>
+
+    <color name="colorBottomBarLight">#F3EDF7</color>
+    <color name="colorBottomBarDark">#F3EDF7</color>
     <color name="colorToolBar">#FFFBFE</color>
     <color name="colorDivider">#BDBDBD</color>
+    <color name="colorLightGrape">#291F35</color>
+    <color name="colorDarkGrape">#1B1427</color>
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
