@@ -9,6 +9,14 @@
     <string name="no_favorite_currencies">You have no favorite currencies</string>
     <string name="add_favorites">Add favorites</string>
 
+    <!-- Historical Screen -->
+    <string name="historical_chart">Historical chart</string>
+    <string name="select_date">Select date</string>
+    <string name="please_select_date">Please select currencies and date</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="tap_to_select">Tap to select</string>
+
     <!-- CurrencyChoiceDialog -->
     <string name="choose_your_currencies">Choose your currencies</string>
     <string name="ok">OK</string>
