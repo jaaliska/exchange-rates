@@ -12,6 +12,7 @@
     <color name="colorBottomBarDark">#F3EDF7</color>
     <color name="colorToolBar">#FFFBFE</color>
     <color name="colorDivider">#BDBDBD</color>
+    <color name="colorBackgroundDisable">#EDEDED</color>
     <color name="colorLightGrape">#291F35</color>
     <color name="colorDarkGrape">#1B1427</color>
 
