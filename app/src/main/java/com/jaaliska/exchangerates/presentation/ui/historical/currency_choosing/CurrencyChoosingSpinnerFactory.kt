@@ -9,14 +9,13 @@ import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.setBlinkingAnimation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 class CurrencyChoosingSpinnerFactory(
     context: Context,
     spinner: Spinner,
     data: List<String>,
-    returnedData: MutableSharedFlow<String?>,
+    returnedData: (String?) -> Unit,
     tittleText: String
 ) {
     private val items =
@@ -24,11 +23,13 @@ class CurrencyChoosingSpinnerFactory(
 
     init {
         var check = 0
-        spinner.adapter = CurrencyChoosingSpinnerAdapter(
+        val adapter = CurrencyChoosingSpinnerAdapter(
             context,
             tittleText,
             items
         )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
 
         val listener: AdapterView.OnItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -40,9 +41,9 @@ class CurrencyChoosingSpinnerFactory(
                 if (++check > 1) {
                     CoroutineScope(Dispatchers.Main).launch {
                         if (position == 0) {
-                            returnedData.emit(null)
+                            returnedData(null)
                         } else {
-                            returnedData.emit(items[position - 1])
+                            returnedData(items[position])
                         }
                     }
                 } else {

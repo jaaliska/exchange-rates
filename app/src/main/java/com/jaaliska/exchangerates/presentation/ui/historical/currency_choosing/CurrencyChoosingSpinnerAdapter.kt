@@ -23,8 +23,6 @@ class CurrencyChoosingSpinnerAdapter(
         getItem(position)?.let { value ->
             setupItem(view, value)
         }
-        setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
         return view
     }
 

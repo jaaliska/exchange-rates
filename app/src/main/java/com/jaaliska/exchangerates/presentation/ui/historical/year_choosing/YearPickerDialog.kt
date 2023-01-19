@@ -1,6 +1,5 @@
 package com.jaaliska.exchangerates.presentation.ui.historical.year_choosing
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
@@ -13,12 +12,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.jaaliska.exchangerates.R
 import kotlinx.android.synthetic.main.year_picker_dialog.view.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 
-class YearPickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener {
+class YearPickerDialog : DialogFragment(), DatePickerDialog.OnDateSetListener {
 
-    lateinit var selectableYear: MutableStateFlow<Int?>
+    lateinit var setYear: (Int?) -> Unit
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -33,15 +30,14 @@ class YearPickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
             .setPositiveButton(R.string.ok) { dialog, id ->
                 onDateSet(null, view.pickerYear.value, 1, 1)
             }.setNegativeButton(R.string.cancel) { dialog, id ->
-                this@YearPickerFragment.dialog!!.cancel()
+                this@YearPickerDialog.dialog!!.cancel()
             }
         return builder.create()
     }
 
-
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
-        lifecycleScope.launch {
-            selectableYear.emit(year)
+        lifecycleScope.launchWhenStarted {
+            setYear(year)
         }
     }
 
@@ -50,9 +46,9 @@ class YearPickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
         @RequiresApi(Build.VERSION_CODES.N)
         private val MAX_YEAR = getCurrentYear()
 
-        fun newInstance(year: MutableStateFlow<Int?>): YearPickerFragment {
-            return YearPickerFragment().apply {
-                selectableYear = year
+        fun newInstance(year: (Int?) -> Unit ): YearPickerDialog {
+            return YearPickerDialog().apply {
+                setYear = year
             }
         }
 

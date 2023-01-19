@@ -28,6 +28,8 @@ internal val viewModels = module {
         )
     }
      viewModel<BaseHistoricalViewModel> {
-         HistoricalViewModel()
+         HistoricalViewModel(
+             currencies = get()
+         )
     }
 }

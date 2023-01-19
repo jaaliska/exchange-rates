@@ -17,6 +17,7 @@
     <string name="from">From</string>
     <string name="to">To</string>
     <string name="tap_to_select">Tap to select</string>
+    <string name="select_different_currencies">Select different currencies</string>
 
     <!-- CurrencyChoiceDialog -->
     <string name="choose_your_currencies">Choose your currencies</string>
