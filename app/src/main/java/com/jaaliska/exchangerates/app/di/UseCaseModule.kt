@@ -5,6 +5,7 @@ import com.jaaliska.exchangerates.data.datasource.RatesDataSourceImpl
 import com.jaaliska.exchangerates.data.usecase.SetFavoriteCurrenciesUseCaseImpl
 import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
 import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
+import com.jaaliska.exchangerates.domain.usecases.GetYearHistoryUseCase
 import com.jaaliska.exchangerates.domain.usecases.SetFavoriteCurrenciesUseCase
 import org.koin.dsl.module
 
@@ -31,6 +32,12 @@ internal val useCaseModule = module {
         CurrenciesDataSourceImpl(
             remoteCurrencyRepository = get(),
             localCurrencyRepository = get()
+        )
+    }
+
+    single {
+        GetYearHistoryUseCase(
+            repository = get()
         )
     }
 }

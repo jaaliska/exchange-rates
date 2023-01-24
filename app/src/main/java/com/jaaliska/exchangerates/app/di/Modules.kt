@@ -7,4 +7,5 @@ val network = module {
     provideApis()
 }
 
-val app = network + repositoryModule + viewModels + serviceModule + dataModule + useCaseModule
+val app =
+    network + repositoryModule + viewModels + serviceModule + dataModule + useCaseModule + dataSourceModule

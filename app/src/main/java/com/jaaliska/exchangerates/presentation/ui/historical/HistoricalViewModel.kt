@@ -4,26 +4,32 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
+import com.jaaliska.exchangerates.domain.usecases.GetYearHistoryUseCase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HistoricalViewModel(
     private val currencies: CurrenciesDataSource,
+    private val getHistory: GetYearHistoryUseCase
 ) : BaseHistoricalViewModel() {
 
-    override val favoriteCurrencyCodes = MutableSharedFlow<List<String>>(1)
+    private val favoriteCurrencies = flow {
+        emit(currencies.getFavorite())
+    }
+    override val favoriteCurrencyCodes = favoriteCurrencies.map { it.map { it.code } }
+        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
     override val isLoading = MutableStateFlow<Boolean>(false)
     override val error = MutableSharedFlow<Int?>(0)
     override val selectedYear = MutableStateFlow<Int?>(null)
-    private val currencyFrom = MutableStateFlow<String?>(null)
-    private val currencyTo = MutableStateFlow<String?>(null)
+    private val currencyCodeFrom = MutableStateFlow<String?>(null)
+    private val currencyCodeTo = MutableStateFlow<String?>(null)
 
     private val validSelection: Flow<Triple<String, String, Int>?> =
-        combine(currencyFrom, currencyTo, selectedYear) { from, to, year ->
+        combine(currencyCodeFrom, currencyCodeTo, selectedYear) { from, to, year ->
             return@combine if (from != null && to != null && from != to && year != null)
                 Triple(from, to, year) else null
         }
-    private val sameCurrencies = combine(currencyFrom, currencyTo) { from, to ->
+    private val sameCurrencies = combine(currencyCodeFrom, currencyCodeTo) { from, to ->
         from != null && from == to
     }
 
@@ -32,17 +38,15 @@ class HistoricalViewModel(
     }
 
     override fun onCurrencyFromSelected(currencyCode: String?) {
-        currencyFrom.value = currencyCode
+        currencyCodeFrom.value = currencyCode
     }
 
     override fun onCurrencyToSelected(currencyCode: String?) {
-        currencyTo.value = currencyCode
+        currencyCodeTo.value = currencyCode
     }
 
     init {
         viewModelScope.launch {
-            launch { favoriteCurrencyCodes.emit(currencies.getFavorite().map { it.code }) }
-
             launch {
                 sameCurrencies.collect {
                     if (it) {
@@ -51,11 +55,32 @@ class HistoricalViewModel(
                 }
             }
 
-            launch { validSelection.collect { if (it != null) { getChartData() } } }
+            launch {
+                validSelection.collect {
+                    if (it != null) {
+                        getChartData()
+                    }
+                }
+            }
         }
     }
 
-    private fun getChartData() {
-        Log.i("MyCheck HistoricalViewModel", "go to server")
+    private suspend fun getChartData() {
+        try {
+            val res = getHistory(
+                selectedYear.value!!,
+                getCurrencyByCode(currencyCodeFrom.value!!)!!,
+                getCurrencyByCode(currencyCodeTo.value!!)!!
+            )
+            Log.i("MyCheck", res.toString())
+        } catch (e: Exception) {
+            error.emit(null)
+        }
     }
+
+    private suspend fun getCurrencyByCode(code: String) = favoriteCurrencies.map { it ->
+        it.find {
+            it.code == code
+        }
+    }.singleOrNull()
 }

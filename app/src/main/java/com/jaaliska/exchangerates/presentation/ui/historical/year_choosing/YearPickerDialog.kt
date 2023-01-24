@@ -3,21 +3,18 @@ package com.jaaliska.exchangerates.presentation.ui.historical.year_choosing
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
-import android.icu.util.Calendar
-import android.os.Build
 import android.os.Bundle
 import android.widget.DatePicker
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.jaaliska.exchangerates.R
 import kotlinx.android.synthetic.main.year_picker_dialog.view.*
+import java.util.*
 
 class YearPickerDialog : DialogFragment(), DatePickerDialog.OnDateSetListener {
 
     lateinit var setYear: (Int?) -> Unit
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(context, android.R.style.ThemeOverlay_Material_Dialog)
         val view = layoutInflater.inflate(R.layout.year_picker_dialog, null)
@@ -43,16 +40,14 @@ class YearPickerDialog : DialogFragment(), DatePickerDialog.OnDateSetListener {
 
     companion object {
         private const val MIN_YEAR = 1990
-        @RequiresApi(Build.VERSION_CODES.N)
         private val MAX_YEAR = getCurrentYear()
 
-        fun newInstance(year: (Int?) -> Unit ): YearPickerDialog {
+        fun newInstance(year: (Int?) -> Unit): YearPickerDialog {
             return YearPickerDialog().apply {
                 setYear = year
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.N)
         private fun getCurrentYear(): Int {
             val c = Calendar.getInstance()
             return c.get(Calendar.YEAR)
