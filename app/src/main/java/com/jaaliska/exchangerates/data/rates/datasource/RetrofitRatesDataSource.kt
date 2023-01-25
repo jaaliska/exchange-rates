@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.data.rates.repository
+package com.jaaliska.exchangerates.data.rates.datasource
 
 import com.jaaliska.exchangerates.data.error.NetworkErrorHandler
 import com.jaaliska.exchangerates.data.mapper.ExchangeRatesMapper
@@ -6,9 +6,13 @@ import com.jaaliska.exchangerates.data.rates.api.RatesAPI
 import com.jaaliska.exchangerates.data.rates.model.api.ResponseDto
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class RetrofitRatesRepository(
-    private val api: RatesAPI
+class RetrofitRatesDataSource(
+    private val api: RatesAPI,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     private val networkErrorHandler = NetworkErrorHandler()
     private val exchangeRatesMapper = ExchangeRatesMapper()
@@ -17,15 +21,15 @@ class RetrofitRatesRepository(
         baseCurrency: Currency,
         currencyCodes: List<Currency>
     ): ExchangeRates {
-        val latestRates: ResponseDto.RatesDetailsDto
-        try {
-            latestRates =
+        val latestRates: ResponseDto.RatesDetailsDto = withContext(dispatcher) {
+            try {
                 api.getLatestRates(
                     baseCurrency.code,
                     currencyCodes.map { it.code }.mapListValuesToString()
                 ).response
-        } catch (e: Exception) {
-            throw networkErrorHandler.mapError(e)
+            } catch (e: Exception) {
+                throw networkErrorHandler.mapError(e)
+            }
         }
         return exchangeRatesMapper.map(latestRates, baseCurrency, currencyCodes)
     }

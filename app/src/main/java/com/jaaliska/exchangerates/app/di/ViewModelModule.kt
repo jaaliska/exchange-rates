@@ -1,6 +1,6 @@
 package com.jaaliska.exchangerates.app.di
 
-import com.jaaliska.exchangerates.data.rates.repository.RoomRatesRepository
+import com.jaaliska.exchangerates.data.rates.datasource.RoomRatesDataSource
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.BaseCurrencyChoiceDialogViewModel
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialogViewModel
 import com.jaaliska.exchangerates.presentation.ui.historical.BaseHistoricalViewModel
@@ -12,12 +12,12 @@ import org.koin.dsl.module
 
 internal val viewModels = module {
     viewModel<BaseRatesViewModel> {
-        val roomRatesRepository: RoomRatesRepository = get()
+        val roomRatesDataSource: RoomRatesDataSource = get()
         RatesViewModel(
-            ratesDataSource = get(),
+            ratesRepository = get(),
             prefsRepository = get(),
             currencies = get(),
-            getRatesUpdateDates = roomRatesRepository.getDateChanges()
+            getRatesUpdateDates = roomRatesDataSource.getDateChanges()
         )
     }
 

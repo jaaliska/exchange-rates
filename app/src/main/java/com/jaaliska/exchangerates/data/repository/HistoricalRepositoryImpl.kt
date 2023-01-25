@@ -1,4 +1,4 @@
-package com.jaaliska.exchangerates.data.historical.repository
+package com.jaaliska.exchangerates.data.repository
 
 import com.jaaliska.exchangerates.data.historical.datasource.RetrofitHistoricalDataSource
 import com.jaaliska.exchangerates.domain.model.Currency
@@ -8,9 +8,8 @@ import kotlinx.coroutines.*
 import java.util.*
 
 class HistoricalRepositoryImpl(
-    private val retrofitHistoricalDataSource: RetrofitHistoricalDataSource,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-): HistoricalRepository {
+    private val retrofitHistoricalDataSource: RetrofitHistoricalDataSource
+) : HistoricalRepository {
 
     override suspend fun getYearHistoryForCurrency(
         year: Int,
@@ -18,22 +17,14 @@ class HistoricalRepositoryImpl(
         currenciesRateFor: Currency
     ): List<ExchangeRates> {
         val currentYear = getCurrentYear()
-        var month = 12
-        if (year == currentYear) {
-            month = getCurrentMonth()
+        val month = if (year == currentYear) getCurrentMonth() else 12
+        return coroutineScope {
+            awaitAll(*(0 until month).map {
+                async {
+                    getRate(year, it, baseCurrency, currenciesRateFor)
+                }
+            }.toTypedArray())
         }
-        val result: List<ExchangeRates>
-        coroutineScope {
-            val tasks = mutableListOf<Deferred<ExchangeRates>>()
-            for (i in 0 until month) {
-                tasks.add(
-                    async(dispatcher) {
-                        getRate(year, i, baseCurrency, currenciesRateFor)
-                    })
-            }
-            result = awaitAll(*tasks.toTypedArray())
-        }
-        return result
     }
 
     private suspend fun getRate(

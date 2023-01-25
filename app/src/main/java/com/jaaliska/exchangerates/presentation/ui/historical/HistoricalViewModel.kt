@@ -3,13 +3,13 @@ package com.jaaliska.exchangerates.presentation.ui.historical
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
+import com.jaaliska.exchangerates.domain.repository.CurrenciesRepository
 import com.jaaliska.exchangerates.domain.usecases.GetYearHistoryUseCase
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HistoricalViewModel(
-    private val currencies: CurrenciesDataSource,
+    private val currencies: CurrenciesRepository,
     private val getHistory: GetYearHistoryUseCase
 ) : BaseHistoricalViewModel() {
 

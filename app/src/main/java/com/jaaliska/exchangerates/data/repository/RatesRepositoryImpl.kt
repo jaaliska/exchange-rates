@@ -1,47 +1,47 @@
-package com.jaaliska.exchangerates.data.datasource
+package com.jaaliska.exchangerates.data.repository
 
-import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
-import com.jaaliska.exchangerates.data.rates.repository.RetrofitRatesRepository
-import com.jaaliska.exchangerates.data.rates.repository.RoomRatesRepository
+import com.jaaliska.exchangerates.data.currency.datasource.RoomCurrencyDataSource
+import com.jaaliska.exchangerates.data.rates.datasource.RetrofitRatesDataSource
+import com.jaaliska.exchangerates.data.rates.datasource.RoomRatesDataSource
 import com.jaaliska.exchangerates.domain.RatesNotFoundException
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
-import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
+import com.jaaliska.exchangerates.domain.repository.RatesRepository
 import com.jaaliska.exchangerates.presentation.service.AlarmService
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-class RatesDataSourceImpl(
-    private val localRatesRepository: RoomRatesRepository,
-    private val localCurrencyRepository: RoomCurrencyRepository,
-    private val remoteRatesRepository: RetrofitRatesRepository,
+class RatesRepositoryImpl(
+    private val localRatesDataSource: RoomRatesDataSource,
+    private val localCurrencyDataSource: RoomCurrencyDataSource,
+    private val remoteRatesDataSource: RetrofitRatesDataSource,
     private val alarmService: AlarmService
-) : RatesDataSource {
+) : RatesRepository {
 
     override suspend fun get(
         baseCurrencyCode: String,
         currencies: List<Currency>?
     ): ExchangeRates {
-        val favorites = currencies ?: localCurrencyRepository.readFavoriteCurrencies()
+        val favorites = currencies ?: localCurrencyDataSource.readFavoriteCurrencies()
         return try {
-            localRatesRepository.getRates(baseCurrencyCode, favorites)
+            localRatesDataSource.getRates(baseCurrencyCode, favorites)
         } catch (ex: RatesNotFoundException) {
             refresh()
-            return localRatesRepository.getRates(baseCurrencyCode, favorites)
+            return localRatesDataSource.getRates(baseCurrencyCode, favorites)
         }
     }
 
     override suspend fun getNamedRates(baseCurrencyCode: String): ExchangeRates {
-        val favorites = localCurrencyRepository.readFavoriteCurrencies()
+        val favorites = localCurrencyDataSource.readFavoriteCurrencies()
         val codesToLoad = favorites.map { it.code }.toMutableList()
         if (!codesToLoad.contains(baseCurrencyCode)) {
             codesToLoad.add(baseCurrencyCode)
         }
 
         val currencies =
-            localCurrencyRepository.readSupportedCurrencies(codesToLoad).associateBy { it.code }
+            localCurrencyDataSource.readSupportedCurrencies(codesToLoad).associateBy { it.code }
         val rates = get(baseCurrencyCode, favorites)
         val getCurrency = { code: String -> currencies[code] ?: Currency("", code) }
 
@@ -53,8 +53,8 @@ class RatesDataSourceImpl(
     }
 
     override suspend fun refresh() {
-        val favorites = localCurrencyRepository.readFavoriteCurrencies()
-        localRatesRepository.deleteAllRates()
+        val favorites = localCurrencyDataSource.readFavoriteCurrencies()
+        localRatesDataSource.deleteAllRates()
         coroutineScope {
             val tasks = mutableListOf<Deferred<Unit>>()
             for (baseCurrency in favorites) {
@@ -72,7 +72,7 @@ class RatesDataSourceImpl(
         baseCurrency: Currency,
         currencyToLoad: List<Currency>
     ) {
-        val rates = remoteRatesRepository.getRates(baseCurrency, currencyToLoad)
-        localRatesRepository.saveRates(rates)
+        val rates = remoteRatesDataSource.getRates(baseCurrency, currencyToLoad)
+        localRatesDataSource.saveRates(rates)
     }
 }
