@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="220dp"
+    android:layout_height="300dp"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <FrameLayout
+        style="?android:attr/datePickerDialogTheme"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:gravity="top">
+
+        <TextView
+            style="?android:attr/titleTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="8dp"
+            android:gravity="center"
+            android:text="@string/year"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <NumberPicker
+        android:id="@+id/pickerYear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:descendantFocusability="blocksDescendants" />
+
+</LinearLayout>

@@ -21,5 +21,8 @@
         <item name="android:subtitleTextStyle">@style/Core.Style.Text.Subtitle</item>
         <item name="android:editTextStyle">@style/Core.Style.Text.Edit</item>
         <item name="android:toolbarStyle">@style/Core.Style.Toolbar</item>
+        <item name="android:datePickerDialogTheme">@style/Core.Style.DatePickerDialog</item>
+        <item name="android:segmentedButtonStyle">@style/Core.Style.ItemBackground</item>
+        <item name="android:spinnerItemStyle">@style/Core.Style.DropDownSpinner</item>
     </style>
 </resources>

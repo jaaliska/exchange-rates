@@ -1,9 +1,9 @@
-package com.jaaliska.exchangerates.domain.datasource
+package com.jaaliska.exchangerates.domain.repository
 
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 
-interface RatesDataSource {
+interface RatesRepository {
 
     suspend fun get(
         baseCurrencyCode: String,

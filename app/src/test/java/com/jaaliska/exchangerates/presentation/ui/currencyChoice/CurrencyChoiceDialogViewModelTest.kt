@@ -7,7 +7,7 @@ import com.jaaliska.exchangerates.const.TestData.listCurrencies
 import com.jaaliska.exchangerates.const.TestData.setOfCurrencyCodes
 import com.jaaliska.exchangerates.domain.IllegalFavoritesCountException
 import com.jaaliska.exchangerates.domain.model.Currency
-import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
+import com.jaaliska.exchangerates.domain.repository.CurrenciesRepository
 import com.jaaliska.exchangerates.domain.usecases.SetFavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.presentation.mapping.toSelectableItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +31,7 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
         }
 
         val setFavoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
-        val currencies = mock(CurrenciesDataSource::class.java)
+        val currencies = mock(CurrenciesRepository::class.java)
         `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
         `when`(currencies.getFavorite()).thenReturn(initialFavorites)
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
@@ -60,7 +60,7 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
         }
 
         val setFavoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
-        val currencies = mock(CurrenciesDataSource::class.java)
+        val currencies = mock(CurrenciesRepository::class.java)
         `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
         `when`(currencies.getFavorite()).thenReturn(initialFavorites)
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
@@ -83,7 +83,7 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
         val selectableItem = listCurrencies.first().toSelectableItem(false)
 
         val setFavoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
-        val currencies = mock(CurrenciesDataSource::class.java)
+        val currencies = mock(CurrenciesRepository::class.java)
         `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
         `when`(currencies.getFavorite()).thenReturn(listOf())
         `when`(setFavoriteCurrenciesUseCase.invoke(setOf(selectableItem.title))).thenThrow(
@@ -111,7 +111,7 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
         val expectedList = setOfCurrencyCodes
 
         val favoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
-        val currencies = mock(CurrenciesDataSource::class.java)
+        val currencies = mock(CurrenciesRepository::class.java)
         `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
         `when`(currencies.getFavorite()).thenReturn(listOf())
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(
@@ -133,7 +133,7 @@ class CurrencyChoiceDialogViewModelTest : BaseTestCase() {
         val selectableItem = listCurrencies.last().toSelectableItem(true)
 
         val favoriteCurrenciesUseCase = mock(SetFavoriteCurrenciesUseCase::class.java)
-        val currencies = mock(CurrenciesDataSource::class.java)
+        val currencies = mock(CurrenciesRepository::class.java)
         `when`(currencies.getSupported(true)).thenReturn(initialSupportedCurrencies)
         `when`(currencies.getFavorite()).thenReturn(initialFavorites)
         val currencyChoiceDialogViewModel = CurrencyChoiceDialogViewModel(

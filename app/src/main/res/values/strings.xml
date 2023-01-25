@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ExchangeRates</string>
 
+    <!-- Errors -->
     <string name="network_error">Network error</string>
     <string name="something_went_wrong">Something went wrong</string>
 
@@ -9,15 +10,28 @@
     <string name="no_favorite_currencies">You have no favorite currencies</string>
     <string name="add_favorites">Add favorites</string>
 
+    <!-- Historical Screen -->
+    <string name="historical_chart">Historical chart</string>
+    <string name="select_date">Select year</string>
+    <string name="please_select_date">Please select currencies and date</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="tap_to_select">Tap to select</string>
+    <string name="select_different_currencies">Select different currencies</string>
+
     <!-- CurrencyChoiceDialog -->
     <string name="choose_your_currencies">Choose your currencies</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
     <string name="not_enough_changed_currency">Select at least two currency</string>
 
     <!-- menu -->
     <string name="menu_change_currencies">Change currencies</string>
     <string name="menu_bottom_rates">Rates</string>
     <string name="menu_bottom_historical">Historical</string>
+
+    <!-- General -->
+    <string name="year">Year</string>
+    <string name="yearFormat">%s y.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

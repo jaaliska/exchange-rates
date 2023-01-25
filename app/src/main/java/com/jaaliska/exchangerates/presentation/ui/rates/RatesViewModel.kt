@@ -1,22 +1,22 @@
 package com.jaaliska.exchangerates.presentation.ui.rates
 
 import androidx.lifecycle.viewModelScope
-import com.jaaliska.exchangerates.data.rates.repository.BaseCurrencyCode
+import com.jaaliska.exchangerates.data.rates.datasource.BaseCurrencyCode
 import com.jaaliska.exchangerates.domain.model.Currency
 import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.model.Rate
 import com.jaaliska.exchangerates.domain.repository.PreferencesRepository
-import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
-import com.jaaliska.exchangerates.domain.datasource.RatesDataSource
+import com.jaaliska.exchangerates.domain.repository.CurrenciesRepository
+import com.jaaliska.exchangerates.domain.repository.RatesRepository
 import com.jaaliska.exchangerates.presentation.error.ErrorHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
 class RatesViewModel(
-    private val ratesDataSource: RatesDataSource,
+    private val ratesRepository: RatesRepository,
     private val prefsRepository: PreferencesRepository,
-    private val currencies: CurrenciesDataSource,
+    private val currencies: CurrenciesRepository,
     private val getRatesUpdateDates: Flow<Map<BaseCurrencyCode, Date>>
 ) : BaseRatesViewModel() {
 
@@ -71,7 +71,7 @@ class RatesViewModel(
         viewModelScope.launch {
             isLoading.emit(true)
             try {
-                ratesDataSource.refresh()
+                ratesRepository.refresh()
             } catch (ex: Exception) {
                 error.emit(errorHandler.map(ex))
             } finally {
@@ -87,7 +87,7 @@ class RatesViewModel(
         viewModelScope.launch {
             isLoading.emit(true)
             try {
-                ratesDataSource.getNamedRates(baseCurrencyCode).apply {
+                ratesRepository.getNamedRates(baseCurrencyCode).apply {
                     prefsRepository.setBaseCurrencyCode(this.baseCurrency.code)
                     applyExchangeRatesToScreen(this)
                     if (onFinished != null) {

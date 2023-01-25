@@ -51,11 +51,10 @@ private fun provideRetrofit(
     client: OkHttpClient,
     baseUrl: String
 ): Retrofit {
-    val gsonFactory = GsonConverterFactory.create(GsonBuilder().setLenient().create())
     return Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(client)
-        .addConverterFactory(gsonFactory)
+        .addConverterFactory(createGsonFactory())
         .build()
 }
 
@@ -69,4 +68,12 @@ private fun provideLoggingInterceptor(): Interceptor {
     return HttpLoggingInterceptor(logger).apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
+}
+
+const val DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss"
+private fun createGsonFactory(): GsonConverterFactory {
+    val gson = GsonBuilder()
+        .setDateFormat(DATE_FORMAT_PATTERN)
+        .create()
+    return GsonConverterFactory.create(gson)
 }

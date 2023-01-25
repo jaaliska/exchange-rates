@@ -1,7 +1,7 @@
 package com.jaaliska.exchangerates.presentation.ui.currencyChoice
 
 import androidx.lifecycle.viewModelScope
-import com.jaaliska.exchangerates.domain.datasource.CurrenciesDataSource
+import com.jaaliska.exchangerates.domain.repository.CurrenciesRepository
 import com.jaaliska.exchangerates.domain.usecases.SetFavoriteCurrenciesUseCase
 import com.jaaliska.exchangerates.presentation.error.ErrorHandler
 import com.jaaliska.exchangerates.presentation.mapping.toCurrency
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class CurrencyChoiceDialogViewModel(
     private val setFavoriteCurrencies: SetFavoriteCurrenciesUseCase,
-    private val currencies: CurrenciesDataSource,
+    private val currencies: CurrenciesRepository,
 ) : BaseCurrencyChoiceDialogViewModel() {
 
     override val items = MutableStateFlow<List<SelectableItem>>(listOf())

@@ -3,10 +3,10 @@ package com.jaaliska.exchangerates.data.usecase
 import com.jaaliska.exchangerates.BaseTestCase
 import com.jaaliska.exchangerates.const.TestData.exchangeRatesByAMD
 import com.jaaliska.exchangerates.const.TestData.listCurrencies
-import com.jaaliska.exchangerates.data.currency.repository.RoomCurrencyRepository
-import com.jaaliska.exchangerates.data.datasource.RatesDataSourceImpl
-import com.jaaliska.exchangerates.data.rates.repository.RetrofitRatesRepository
-import com.jaaliska.exchangerates.data.rates.repository.RoomRatesRepository
+import com.jaaliska.exchangerates.data.currency.datasource.RoomCurrencyDataSource
+import com.jaaliska.exchangerates.data.repository.RatesRepositoryImpl
+import com.jaaliska.exchangerates.data.rates.datasource.RetrofitRatesDataSource
+import com.jaaliska.exchangerates.data.rates.datasource.RoomRatesDataSource
 import com.jaaliska.exchangerates.domain.RatesNotFoundException
 import com.jaaliska.exchangerates.presentation.service.AlarmService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,53 +17,53 @@ import org.mockito.Mockito.times
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
-class RatesDataSourceImplTest : BaseTestCase() {
+class RatesRepositoryImplTest : BaseTestCase() {
 
     @Test
     fun `test get rates`() = runBlockingTest  {
-        val localRatesRepository = Mockito.mock(RoomRatesRepository::class.java)
-        val localCurrencyRepository = Mockito.mock(RoomCurrencyRepository::class.java)
-        val remoteRatesRepository = Mockito.mock(RetrofitRatesRepository::class.java)
+        val localRatesRepository = Mockito.mock(RoomRatesDataSource::class.java)
+        val localCurrencyRepository = Mockito.mock(RoomCurrencyDataSource::class.java)
+        val remoteRatesRepository = Mockito.mock(RetrofitRatesDataSource::class.java)
         val alarmService = Mockito.mock(AlarmService::class.java)
-        val ratesDataSourceImpl =
-            RatesDataSourceImpl(
+        val ratesRepositoryImpl =
+            RatesRepositoryImpl(
                 localRatesRepository, localCurrencyRepository, remoteRatesRepository, alarmService
             )
         Mockito.`when`(localRatesRepository.getRates("AMD", listCurrencies))
             .thenReturn(exchangeRatesByAMD)
 
-        val result = ratesDataSourceImpl.get("AMD", listCurrencies)
+        val result = ratesRepositoryImpl.get("AMD", listCurrencies)
 
         assertEquals(exchangeRatesByAMD, result)
     }
 
     @Test
     fun `test get rates when currencies absent`() = runBlockingTest  {
-        val localRatesRepository = Mockito.mock(RoomRatesRepository::class.java)
-        val localCurrencyRepository = Mockito.mock(RoomCurrencyRepository::class.java)
-        val remoteRatesRepository = Mockito.mock(RetrofitRatesRepository::class.java)
+        val localRatesRepository = Mockito.mock(RoomRatesDataSource::class.java)
+        val localCurrencyRepository = Mockito.mock(RoomCurrencyDataSource::class.java)
+        val remoteRatesRepository = Mockito.mock(RetrofitRatesDataSource::class.java)
         val alarmService = Mockito.mock(AlarmService::class.java)
-        val ratesDataSourceImpl =
-            RatesDataSourceImpl(
+        val ratesRepositoryImpl =
+            RatesRepositoryImpl(
                 localRatesRepository, localCurrencyRepository, remoteRatesRepository, alarmService
             )
         Mockito.`when`(localCurrencyRepository.readFavoriteCurrencies()).thenReturn(listCurrencies)
         Mockito.`when`(localRatesRepository.getRates("AMD", listCurrencies))
             .thenReturn(exchangeRatesByAMD)
 
-        val result = ratesDataSourceImpl.get("AMD")
+        val result = ratesRepositoryImpl.get("AMD")
 
         assertEquals(exchangeRatesByAMD, result)
     }
 
     @Test
     fun `test get rates when throw RatesNotFoundException`(): Unit = runBlockingTest  {
-        val localRatesRepository = Mockito.mock(RoomRatesRepository::class.java)
-        val localCurrencyRepository = Mockito.mock(RoomCurrencyRepository::class.java)
-        val remoteRatesRepository = Mockito.mock(RetrofitRatesRepository::class.java)
+        val localRatesRepository = Mockito.mock(RoomRatesDataSource::class.java)
+        val localCurrencyRepository = Mockito.mock(RoomCurrencyDataSource::class.java)
+        val remoteRatesRepository = Mockito.mock(RetrofitRatesDataSource::class.java)
         val alarmService = Mockito.mock(AlarmService::class.java)
-        val ratesDataSourceImpl =
-            RatesDataSourceImpl(
+        val ratesRepositoryImpl =
+            RatesRepositoryImpl(
                 localRatesRepository, localCurrencyRepository, remoteRatesRepository, alarmService
             )
         Mockito.`when`(localCurrencyRepository.readFavoriteCurrencies()).thenReturn(listCurrencies)
@@ -71,7 +71,7 @@ class RatesDataSourceImplTest : BaseTestCase() {
             .thenThrow(RatesNotFoundException(listCurrencies.first().code))
             .thenReturn(exchangeRatesByAMD)
 
-        ratesDataSourceImpl.get(listCurrencies.first().code, listCurrencies)
+        ratesRepositoryImpl.get(listCurrencies.first().code, listCurrencies)
 
         Mockito.verify(localRatesRepository, times(2))
             .getRates(listCurrencies.first().code, listCurrencies)
