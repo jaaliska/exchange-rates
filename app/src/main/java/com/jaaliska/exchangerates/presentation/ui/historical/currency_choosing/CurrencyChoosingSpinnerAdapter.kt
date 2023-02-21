@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.utils.setBlinkingAnimation
+import com.jaaliska.exchangerates.presentation.utils.ui_kit.setBlinkingAnimation
 
 class CurrencyChoosingSpinnerAdapter(
     context: Context,
