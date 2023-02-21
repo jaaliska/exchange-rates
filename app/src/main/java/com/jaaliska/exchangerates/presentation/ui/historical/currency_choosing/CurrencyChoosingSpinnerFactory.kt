@@ -6,7 +6,7 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import android.widget.TextView
 import com.jaaliska.exchangerates.R
-import com.jaaliska.exchangerates.presentation.utils.setBlinkingAnimation
+import com.jaaliska.exchangerates.presentation.utils.ui_kit.setBlinkingAnimation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

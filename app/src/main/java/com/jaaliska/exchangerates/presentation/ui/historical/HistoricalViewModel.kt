@@ -1,8 +1,8 @@
 package com.jaaliska.exchangerates.presentation.ui.historical
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.domain.model.ExchangeRates
 import com.jaaliska.exchangerates.domain.repository.CurrenciesRepository
 import com.jaaliska.exchangerates.domain.usecases.GetYearHistoryUseCase
 import kotlinx.coroutines.flow.*
@@ -18,6 +18,7 @@ class HistoricalViewModel(
     }
     override val favoriteCurrencyCodes = favoriteCurrencies.map { it.map { it.code } }
         .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
+    override val currenciesForChart = MutableStateFlow<List<ExchangeRates>?>(null)
     override val isLoading = MutableStateFlow<Boolean>(false)
     override val error = MutableSharedFlow<Int?>(0)
     override val selectedYear = MutableStateFlow<Int?>(null)
@@ -67,14 +68,17 @@ class HistoricalViewModel(
 
     private suspend fun getChartData() {
         try {
+            isLoading.value = true
             val res = getHistory(
                 selectedYear.value!!,
                 getCurrencyByCode(currencyCodeFrom.value!!)!!,
                 getCurrencyByCode(currencyCodeTo.value!!)!!
             )
-            Log.i("MyCheck", res.toString())
+            currenciesForChart.emit(res)
         } catch (e: Exception) {
             error.emit(null)
+        } finally {
+            isLoading.emit(false)
         }
     }
 
