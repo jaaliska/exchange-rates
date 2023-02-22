@@ -1,25 +1,36 @@
 package com.jaaliska.exchangerates.presentation.ui.historical
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.databinding.FragmentScreenHistoricalBinding
 import com.jaaliska.exchangerates.presentation.ui.historical.currency_choosing.CurrencyChoosingSpinnerFactory
 import com.jaaliska.exchangerates.presentation.ui.historical.year_choosing.YearPickerDialog
 import com.jaaliska.exchangerates.presentation.utils.observe
 import com.jaaliska.exchangerates.presentation.utils.ui_kit.setBlinkingAnimation
 import com.jaaliska.exchangerates.presentation.utils.ui_kit.showProgress
-import kotlinx.android.synthetic.main.fragment_screen_historical.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class HistoricalScreen : Fragment(R.layout.fragment_screen_historical) {
+class HistoricalScreen : Fragment() {
 
     private val viewModel by viewModel<BaseHistoricalViewModel>()
+    private lateinit var binding: FragmentScreenHistoricalBinding
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentScreenHistoricalBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -30,22 +41,22 @@ class HistoricalScreen : Fragment(R.layout.fragment_screen_historical) {
         viewModel.favoriteCurrencyCodes.observe(viewLifecycleOwner) {
             setupSpinners(it)
         }
-        selectDateLayout.setOnClickListener {
+        binding.selectDateLayout.setOnClickListener {
             showDateDialog()
         }
 
         viewModel.selectedYear.observe(viewLifecycleOwner) {
             if (it != null) {
-                selectedYear.animation?.cancel()
-                selectedYear.text = getString(R.string.yearFormat, it.toString())
-                selectedYear.setTextColor(
+                binding.selectedYear.animation?.cancel()
+                binding.selectedYear.text = getString(R.string.yearFormat, it.toString())
+                binding.selectedYear.setTextColor(
                     resources.getColor(
                         R.color.primaryColor,
                         requireContext().theme
                     )
                 )
             } else {
-                setBlinkingAnimation(selectedYear)
+                setBlinkingAnimation(binding.selectedYear)
             }
         }
 
@@ -72,8 +83,8 @@ class HistoricalScreen : Fragment(R.layout.fragment_screen_historical) {
                 }
 
                 val dataSet = LineDataSet(entries, getString(R.string.chart_label))
-                chart.data = LineData(dataSet)
-                chart.invalidate()
+                binding.chart.data = LineData(dataSet)
+                binding.chart.invalidate()
             }
         }
     }
@@ -81,14 +92,14 @@ class HistoricalScreen : Fragment(R.layout.fragment_screen_historical) {
     private fun setupSpinners(items: List<String>) {
         CurrencyChoosingSpinnerFactory(
             requireContext(),
-            spinnerFrom,
+            binding.spinnerFrom,
             items,
             viewModel::onCurrencyFromSelected,
             getString(R.string.from)
         )
         CurrencyChoosingSpinnerFactory(
             requireContext(),
-            spinnerTo,
+            binding.spinnerTo,
             items,
             viewModel::onCurrencyToSelected,
             getString(R.string.to)

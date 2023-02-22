@@ -1,47 +1,45 @@
 package com.jaaliska.exchangerates.presentation.ui.rates
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.ui.rates.BaseRatesViewModel.Item
-import kotlinx.android.synthetic.main.exchange_rates_item.view.*
+import com.jaaliska.exchangerates.databinding.ExchangeRatesItemBinding
 
 class MainAdapter(
     private val onItemClick: (item: Item) -> Unit
 ) : ListAdapter<Item, MainAdapter.DataViewHolder>(Item.diffCallback) {
 
-    class DataViewHolder(
-        itemView: View,
+    inner class DataViewHolder(
+        private val binding: ExchangeRatesItemBinding,
         private val onItemClick: (item: Item) -> Unit
-    ) : RecyclerView.ViewHolder(itemView) {
-
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(
             item: Item
         ) {
             itemView.apply {
-                title.text = item.title
-                subtitle.text = item.subtitle
-                tvResultAmount.text = String.format(TEXT_VALUE_FORMAT, item.amount)
+                binding.title.text = item.title
+                binding.subtitle.text = item.subtitle
+                binding.tvResultAmount.text = String.format(TEXT_VALUE_FORMAT, item.amount)
                 this.setOnClickListener { onItemClick(item) }
             }
         }
 
         fun bindAmount(amount: Double) {
             itemView.apply {
-                tvResultAmount.text = String.format(TEXT_VALUE_FORMAT, amount)
+                binding.tvResultAmount.text = String.format(TEXT_VALUE_FORMAT, amount)
             }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder =
-        DataViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.exchange_rates_item, parent, false),
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder {
+        val binding = ExchangeRatesItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DataViewHolder(
+            binding,
             onItemClick
         )
+    }
 
     override fun getItemCount(): Int {
         return currentList.size

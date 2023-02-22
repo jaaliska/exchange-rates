@@ -1,13 +1,11 @@
 package com.jaaliska.exchangerates.presentation.ui.currencyChoice
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.databinding.CurrencyChoiceItemBinding
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.BaseCurrencyChoiceDialogViewModel.SelectableItem
-import kotlinx.android.synthetic.main.currency_choice_item.view.*
 
 class CurrencyChoiceAdapter(
     private val onItemClick: (item: SelectableItem, isCheck: Boolean) -> Unit
@@ -15,15 +13,16 @@ class CurrencyChoiceAdapter(
     SelectableItem.diffCallback
 ) {
 
-    class CheckableViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class CheckableViewHolder(private val binding: CurrencyChoiceItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(
             item: SelectableItem,
             onItemClick: (item: SelectableItem, isCheck: Boolean) -> Unit
         ) {
             itemView.apply {
-                title.text = item.title
-                subtitle.text = item.subtitle
-                checkbox.isChecked = item.isSelected
+                binding.title.text = item.title
+                binding.subtitle.text = item.subtitle
+                binding.checkbox.isChecked = item.isSelected
 
                 this.setOnClickListener {
                     onItemClick(item, !item.isSelected)
@@ -32,11 +31,13 @@ class CurrencyChoiceAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheckableViewHolder =
-        CheckableViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.currency_choice_item, parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheckableViewHolder {
+        val binding =
+            CurrencyChoiceItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CheckableViewHolder(
+            binding
         )
+    }
 
     override fun getItemCount(): Int {
         return currentList.size

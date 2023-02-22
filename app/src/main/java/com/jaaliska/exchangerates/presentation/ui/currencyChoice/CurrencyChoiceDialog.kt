@@ -8,9 +8,8 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.utils.observe
-import kotlinx.android.synthetic.main.dialog_currency_choice.*
+import com.jaaliska.exchangerates.databinding.DialogCurrencyChoiceBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CurrencyChoiceDialog : DialogFragment() {
@@ -21,13 +20,15 @@ class CurrencyChoiceDialog : DialogFragment() {
             viewModel.onItemSelected(item, isChecked)
         }
     }
+    private lateinit var binding: DialogCurrencyChoiceBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.dialog_currency_choice, container, false)
+    ): View {
+        binding = DialogCurrencyChoiceBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,21 +47,21 @@ class CurrencyChoiceDialog : DialogFragment() {
     }
 
     private fun setupView() {
-        currencyContainer.layoutManager = LinearLayoutManager(context)
-        currencyContainer.adapter = adapter
+        binding.currencyContainer.layoutManager = LinearLayoutManager(context)
+        binding.currencyContainer.adapter = adapter
         viewModel.items.observe(viewLifecycleOwner) { supportedCurrencies ->
             adapter.submitList(supportedCurrencies)
         }
         viewModel.isLoading.observe(viewLifecycleOwner) {
-            progressBar.isVisible = it
+            binding.progressBar.isVisible = it
         }
         viewModel.error.observe(viewLifecycleOwner) {
             Toast.makeText(context, requireContext().getString(it), Toast.LENGTH_LONG).show()
         }
-        buttonOk.setOnClickListener {
+        binding.buttonOk.setOnClickListener {
             viewModel.submitItems { dismiss() }
         }
-        buttonCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             dismiss()
         }
     }

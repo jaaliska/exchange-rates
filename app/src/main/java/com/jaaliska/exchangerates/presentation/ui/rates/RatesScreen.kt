@@ -1,7 +1,9 @@
 package com.jaaliska.exchangerates.presentation.ui.rates
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -11,20 +13,29 @@ import com.jaaliska.exchangerates.R
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
 import com.jaaliska.exchangerates.presentation.utils.MoneyValueFilter
 import com.jaaliska.exchangerates.presentation.utils.observe
-import kotlinx.android.synthetic.main.fragment_screen_rates.*
+import com.jaaliska.exchangerates.databinding.FragmentScreenRatesBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class RatesScreen : Fragment(R.layout.fragment_screen_rates) {
+class RatesScreen : Fragment() {
 
     private val viewModel by viewModel<BaseRatesViewModel>()
     private val mainAdapter by lazy {
         MainAdapter(
             onItemClick = viewModel::onItemSelection
         )
+    }
+    private lateinit var binding: FragmentScreenRatesBinding
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentScreenRatesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,12 +48,12 @@ class RatesScreen : Fragment(R.layout.fragment_screen_rates) {
         viewModel.isHasFavorites.observe(viewLifecycleOwner) {
             it?.let {
                 if (it) {
-                    rootExchangeRates.isVisible = true
-                    rootHaveNoFavorites.isVisible = false
+                    binding.rootExchangeRates.isVisible = true
+                    binding.rootHaveNoFavorites.isVisible = false
                 } else {
-                    rootHaveNoFavorites.isVisible = true
-                    rootExchangeRates.isVisible = false
-                    butAddFavorites.setOnClickListener {
+                    binding.rootHaveNoFavorites.isVisible = true
+                    binding.rootExchangeRates.isVisible = false
+                    binding.butAddFavorites.setOnClickListener {
                         CurrencyChoiceDialog().show(parentFragmentManager, CURRENCY_CHOICE_DIALOG)
                     }
                 }
@@ -53,7 +64,7 @@ class RatesScreen : Fragment(R.layout.fragment_screen_rates) {
     private fun setupUI() {
         viewModel.updateDate.observe(viewLifecycleOwner) {
             if (it != null) {
-                updateData.text = getString(
+                binding.updateData.text = getString(
                     R.string.the_last_update_was_at,
                     SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(it)
                 )
@@ -62,12 +73,12 @@ class RatesScreen : Fragment(R.layout.fragment_screen_rates) {
         setupAnchor()
         setupRecyclerView()
 
-        swipeRefresh.setOnRefreshListener {
+        binding.swipeRefresh.setOnRefreshListener {
             viewModel.onSwipeToRefresh()
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) {
-            swipeRefresh.isRefreshing = it
+            binding.swipeRefresh.isRefreshing = it
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
@@ -76,28 +87,28 @@ class RatesScreen : Fragment(R.layout.fragment_screen_rates) {
     }
 
     private fun setupAnchor() {
-        val currentDoubleValue = currencyAmount.text.toString().toDoubleOrNull()
+        val currentDoubleValue = binding.currencyAmount.text.toString().toDoubleOrNull()
         viewModel.anchor.observe(viewLifecycleOwner) {
             if (it != null && it.amount != currentDoubleValue) {
-                title.text = it.title
-                subtitle.text = it.subtitle
+                binding.title.text = it.title
+                binding.subtitle.text = it.subtitle
                 val nf: NumberFormat = NumberFormat.getInstance()
                 nf.maximumFractionDigits = 2
                 nf.isGroupingUsed = false
-                currencyAmount.setText(nf.format(it.amount))
+                binding.currencyAmount.setText(nf.format(it.amount))
             }
         }
 
-        currencyAmount.filters = arrayOf(MoneyValueFilter())
-        currencyAmount.doAfterTextChanged {
+        binding.currencyAmount.filters = arrayOf(MoneyValueFilter())
+        binding.currencyAmount.doAfterTextChanged {
             val newAmount = it.toString().toDoubleOrNull()
             newAmount?.let { viewModel.onAmountChanged(newAmount) }
         }
     }
 
     private fun setupRecyclerView() {
-        ratesContainer.adapter = mainAdapter
-        ratesContainer.layoutManager = LinearLayoutManager(context)
+        binding.ratesContainer.adapter = mainAdapter
+        binding.ratesContainer.layoutManager = LinearLayoutManager(context)
         viewModel.items.observe(viewLifecycleOwner) {
             mainAdapter.submitList(it)
         }

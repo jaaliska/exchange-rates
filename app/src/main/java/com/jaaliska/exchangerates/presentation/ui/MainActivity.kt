@@ -8,15 +8,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.jaaliska.exchangerates.R
+import com.jaaliska.exchangerates.databinding.ActivityMainBinding
 import com.jaaliska.exchangerates.presentation.ui.currencyChoice.CurrencyChoiceDialog
-import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupNavController()
         setupActionBar()
         setupSmoothBottomMenu()
@@ -41,16 +44,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun setupActionBar() {
-        setSupportActionBar(toolBar)
+        setSupportActionBar(binding.toolBar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        toolbarTitle.setText(R.string.app_name)
+        binding.toolbarTitle.setText(R.string.app_name)
     }
 
     private fun setupSmoothBottomMenu() {
         val popupMenu = PopupMenu(this, null)
         popupMenu.inflate(R.menu.bottom_navigation_menu)
         val menu = popupMenu.menu
-        bottomNavigation.setupWithNavController(menu, navController)
+        binding.bottomNavigation.setupWithNavController(menu, navController)
     }
 
     companion object {

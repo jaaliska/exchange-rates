@@ -8,7 +8,7 @@ import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.jaaliska.exchangerates.R
-import kotlinx.android.synthetic.main.year_picker_dialog.view.*
+import com.jaaliska.exchangerates.databinding.YearPickerDialogBinding
 import java.util.*
 
 class YearPickerDialog : DialogFragment(), DatePickerDialog.OnDateSetListener {
@@ -17,15 +17,15 @@ class YearPickerDialog : DialogFragment(), DatePickerDialog.OnDateSetListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(context, android.R.style.ThemeOverlay_Material_Dialog)
-        val view = layoutInflater.inflate(R.layout.year_picker_dialog, null)
-        view.pickerYear.apply {
+        val binding = YearPickerDialogBinding.inflate(layoutInflater)
+        binding.pickerYear.apply {
             minValue = MIN_YEAR
             maxValue = MAX_YEAR
             value = MAX_YEAR
         }
-        builder.setView(view)
+        builder.setView(binding.root)
             .setPositiveButton(R.string.ok) { dialog, id ->
-                onDateSet(null, view.pickerYear.value, 1, 1)
+                onDateSet(null, binding.pickerYear.value, 1, 1)
             }.setNegativeButton(R.string.cancel) { dialog, id ->
                 this@YearPickerDialog.dialog!!.cancel()
             }
