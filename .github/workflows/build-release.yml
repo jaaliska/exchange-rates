@@ -1,0 +1,68 @@
+name: Android CI
+
+env:
+  # The name of the main module repository
+  main_project_module: app
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - '*'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: zulu
+
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
+      # Run Tests Build
+      - name: Run gradle tests
+        run: ./gradlew test
+
+      - name: Android Test Report
+        uses: asadmansr/android-test-report-action@v1.2.0
+
+      # Run Build Project
+      - name: Build debug apk
+        run: ./gradlew assembleDebug
+
+      # Noted For Output [main_project_module]/build/outputs/apk/debug/
+      - name: Upload APK Debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: exchange-rates-debug.apk
+          path: ${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk
+
+      # Run Build Project
+      - name: Build release apk
+        run: ./gradlew assembleRelease
+
+      # Noted For Output [main_project_module]/build/outputs/apk/release/
+      - name: Upload APK Release
+        uses: actions/upload-artifact@v3
+        with:
+          name: exchange-rates-release.apk
+          path: ${{ env.main_project_module }}/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Create release
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "${{ env.main_project_module }}/build/outputs/apk/release/app-release-unsigned.apk,${{ env.main_project_module }}/build/outputs/apk/debug/app-debug.apk"
