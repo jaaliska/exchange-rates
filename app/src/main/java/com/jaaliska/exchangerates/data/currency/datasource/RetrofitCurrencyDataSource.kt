@@ -15,21 +15,21 @@ class RetrofitCurrencyDataSource(
     private val networkErrorHandler = NetworkErrorHandler()
 
     suspend fun readSupportedCurrencies(codes: List<String>? = null): List<Currency> {
-        val currencies: Map<String, CurrencyDto> = withContext(dispatcher) {
+        val currencies: List<CurrencyDto> = withContext(dispatcher) {
             try {
-                api.getSupportedCurrencies().response.fiats
+                api.getSupportedCurrencies().response
             } catch (e: Exception) {
                 throw networkErrorHandler.mapError(e)
             }
         }
 
         if (codes != null) {
-            return codes.fold(mutableListOf()) { acc, code ->
-                currencies[code]?.let {
+            return currencies.fold(mutableListOf()) { acc, currencyDto ->
+                codes.find { it == currencyDto.code }?.let {
                     acc.add(
                         Currency(
-                            name = it.name,
-                            code = it.code
+                            name = currencyDto.name,
+                            code = currencyDto.code
                         )
                     )
                 }
@@ -39,8 +39,8 @@ class RetrofitCurrencyDataSource(
 
         return currencies.map {
             Currency(
-                name = it.value.name,
-                code = it.value.code
+                name = it.name,
+                code = it.code
             )
         }
     }
